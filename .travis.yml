@@ -1,3 +1,15 @@
+sudo: required
+dist: trusty
 language: java
 jdk:
   - oraclejdk8
+branches:
+  only:
+  - master
+deploy:
+  provider: heroku
+  app:
+    master: bacterio-back
+  api_key:
+    master:
+    secure: BXIbubZ5UK3KDptjQlawFg5nqowxUT/HIRxQ/hbEAvNbzmloQ5lJ8IBlKaH5yjjbtJnQ8MDQUB+5Op+dgQHNsp55Gvnn1QR+zmsePKPxXlqOqryUgsYt4+n+KpAT0LhDFJSUzV7zd4kmpENMUT9sRgJx3Fd5FzWy60uujZlWNCkocDdXDQqvM4SCIJYqkIlhneY+gXXMtotOeIe8o20ZvmZtfGrT2J4i8RrEFIVNPoLsd2Uu9DJNvnX4tJRsaEmzOtcmQESqcYCQssfxL/K7Zv5tI29UGUIvMonzY282EM7PnscEcan8Vrz6NsHv1wTEq33IxFisG7FHojHb6qbqwl7IMKZG8n5EsU9trD1hXEUIfNhw2XzusGEPHuN3fq5bkyMQp8arPZmpojNWBkJ2V5/jpRkfUdXAL8UBXh15KddRVp8vGJTdkNwjHKJYi/9lY7gChp/TV69BBbAlERLGFaZx4k7M7ukS+FiVxt57/WdWG/+kN8Y/xBxSnPcjNUQHZCgJ1JinOsRffk0GgNypprrO2zvWzau1g0IlvQcBNgtEWsp0uS+kCAbZ6+7WakNSFK0jIwDkNHSI0xGv5BiVhTKRPE92zOsifUN3CFpnlg7BUuSP2AKB1u8VXOFn7PSa9sG/g13twFlMUBfQkEnTEtdc4JuNqGrF3nwANovruqs=
