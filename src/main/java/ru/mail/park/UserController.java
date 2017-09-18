@@ -30,7 +30,7 @@ public class UserController {
         final String email = body.getEmail();
         final String password = body.getPassword();
 
-        if(StringUtils.isEmpty(login)
+        if (StringUtils.isEmpty(login)
                 || StringUtils.isEmpty(email)
                 || StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -39,7 +39,7 @@ public class UserController {
 
         final User checkIfExist = userService.getUser(login);
 
-        if(checkIfExist != null) {
+        if (checkIfExist != null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailedResponse("User already signed up!"));
 
@@ -55,7 +55,7 @@ public class UserController {
         final String login = body.getLogin();
         final String password = body.getPassword();
 
-        if(StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
+        if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailedResponse("Empty fields!"));
         }
@@ -74,11 +74,10 @@ public class UserController {
                     .body(new FailedResponse("This user is not signed up!"));
         }
 
-        if(!registeredUser.getPassword().equals(password)) {
+        if (!registeredUser.getPassword().equals(password)) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new FailedResponse("Wrong password!"));
-        }
-        else {
+        } else {
             httpSession.setAttribute("login", login);
         }
 
@@ -89,7 +88,7 @@ public class UserController {
     public ResponseEntity logOut(HttpSession httpSession) {
         final String checkIfSignedIn = (String) httpSession.getAttribute("login");
 
-        if(checkIfSignedIn == null) {
+        if (checkIfSignedIn == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailedResponse("You're not sighed in!"));
         }
