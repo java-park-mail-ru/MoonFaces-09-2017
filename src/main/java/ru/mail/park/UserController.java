@@ -146,7 +146,6 @@ public class UserController {
             currentUser.setPassword(password);
         }
 
-        userService.removeUser(currentUserLogin);
         userService.addUser(currentUserLogin, currentUser);
 
         return ResponseEntity.ok(new UserResponse(userService.getUser(currentUserLogin)));
