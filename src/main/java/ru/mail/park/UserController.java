@@ -97,7 +97,7 @@ public class UserController {
         return ResponseEntity.ok(OK_RESPONSE);
     }
 
-    @RequestMapping(path = "/restapi/current", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    @RequestMapping(path = "/restapi/current", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
     public ResponseEntity currentUser(HttpSession httpSession) {
         final String currentUserLogin = (String) httpSession.getAttribute("login");
 
@@ -111,19 +111,17 @@ public class UserController {
 
     @RequestMapping(path = "/restapi/settings", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public ResponseEntity changeUser(@RequestBody User body, HttpSession httpSession) {
-        final String login = body.getLogin();
         final String email = body.getEmail();
         final String password = body.getPassword();
 
-        String currentUserLogin = (String) httpSession.getAttribute("login");
+        final String currentUserLogin = (String) httpSession.getAttribute("login");
 
         if (currentUserLogin == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailResponse(true, "You're not signed in!"));
         }
 
-        if (StringUtils.isEmpty(login)
-                && StringUtils.isEmpty(email)
+        if (StringUtils.isEmpty(email)
                 && StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailResponse(true, "All fields are empty!"));
@@ -131,9 +129,15 @@ public class UserController {
 
         final User currentUser = userService.getUser(currentUserLogin);
 
-        if (!StringUtils.isEmpty(login)) {
-            currentUser.setLogin(login);
-            currentUserLogin = login;
+
+        if (currentUser.getEmail().equals(email)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new FailResponse(true, "This is your current email!"));
+        }
+
+        if (currentUser.getPassword().equals(password)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new FailResponse(true, "This is your current password!"));
         }
 
         if (!StringUtils.isEmpty(email)) {
