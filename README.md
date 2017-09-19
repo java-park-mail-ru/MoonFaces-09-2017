@@ -1,5 +1,5 @@
 # Bacterio
-## Модифицированная версия Conway's game of life
+### Модифицированная версия Conway's game of life
 
 ## Фронтенд [![Build Status](https://travis-ci.org/frontend-park-mail-ru/2017_2_MoonFaces.svg?branch=develop)](https://travis-ci.org/frontend-park-mail-ru/2017_2_MoonFaces)
 ### [https://bacterio.herokuapp.com/](https://bacterio.herokuapp.com/)
