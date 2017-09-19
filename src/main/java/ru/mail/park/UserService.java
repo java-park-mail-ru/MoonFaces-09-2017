@@ -1,6 +1,7 @@
 package ru.mail.park;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.HashMap;
 
