@@ -2,12 +2,8 @@ package ru.mail.park;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 @SuppressWarnings("unused")
 public class User {
-    private static final AtomicLong COUNTER = new AtomicLong(0);
-    private final long id;
 
     @JsonProperty("login")
     private String login;
@@ -18,20 +14,12 @@ public class User {
     @JsonProperty("password")
     private String password;
 
-    public User() {
-        this.id = COUNTER.getAndIncrement();
-    }
+    public User() { }
 
     public User(String login, String email, String password) {
-        this.id = COUNTER.getAndIncrement();
         this.login = login;
         this.email = email;
         this.password = password;
-    }
-
-    @SuppressWarnings("unused")
-    public long getId() {
-        return id;
     }
 
     @SuppressWarnings("unused")

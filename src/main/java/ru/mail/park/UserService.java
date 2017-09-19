@@ -12,7 +12,7 @@ public class UserService {
     public void addUser(String login, String email, String password) {
         registeredUser.put(login, new User(login, email, password));
     }
-    
+
     @SuppressWarnings("unused")
     public void addUser(String login, User user) {
         registeredUser.put(login, user);
