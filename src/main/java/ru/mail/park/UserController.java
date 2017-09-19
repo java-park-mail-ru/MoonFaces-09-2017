@@ -95,7 +95,7 @@ public class UserController {
         return ResponseEntity.ok(OK_RESPONSE);
     }
 
-    @RequestMapping(path = "/restapi/current", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+    @RequestMapping(path = "/restapi/current", method = RequestMethod.GET, produces = "application/json")
     public ResponseEntity currentUser(HttpSession httpSession) {
         final String currentUserLogin = (String) httpSession.getAttribute("login");
 
