@@ -100,7 +100,7 @@ public class UserController {
         final String currentUserLogin = (String) httpSession.getAttribute("login");
 
         if (currentUserLogin == null) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new FailOrSuccessResponse(true, "Nobody is signed in!"));
         }
 
