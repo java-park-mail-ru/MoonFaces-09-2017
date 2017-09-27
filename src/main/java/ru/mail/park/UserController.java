@@ -23,7 +23,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/signup")
-    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User body, HttpSession httpSession) {
+    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User body) {
         final String login = body.getLogin();
         final String email = body.getEmail();
         final String password = body.getPassword();
@@ -44,7 +44,6 @@ public class UserController {
         }
 
         userService.addUser(login, email, password);
-        httpSession.setAttribute("login", login);
 
         return ResponseEntity.ok(OK_RESPONSE);
     }
