@@ -6,6 +6,7 @@ public class User {
     private String login;
     private String email;
     private String password;
+    private Integer score;
 
     @SuppressWarnings("unused")
     public User() { }
@@ -14,6 +15,7 @@ public class User {
         this.login = login;
         this.email = email;
         this.password = password;
+        this.score = 0;
     }
 
 
@@ -40,5 +42,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    @SuppressWarnings("unused")
+    public void setScore(Integer score) {
+        this.score = score;
     }
 }

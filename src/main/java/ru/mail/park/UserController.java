@@ -49,7 +49,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/signin")
-    public ResponseEntity<FailOrSuccessResponse> signIn(@RequestBody User body, HttpSession httpSession) {
+    public ResponseEntity<?> signIn(@RequestBody User body, HttpSession httpSession) {
         final String login = body.getLogin();
         final String password = body.getPassword();
 
@@ -78,7 +78,7 @@ public class UserController {
         }
 
         httpSession.setAttribute("login", login);
-        return ResponseEntity.ok(OK_RESPONSE);
+        return ResponseEntity.ok(new UserResponse(registeredUser));
     }
 
     @PostMapping(path = "/restapi/logout")
@@ -173,10 +173,12 @@ public class UserController {
     private static final class UserResponse {
         private final String login;
         private final String email;
+        private final Integer score;
 
         private UserResponse(User user) {
             this.login = user.getLogin();
             this.email = user.getEmail();
+            this.score = user.getScore();
         }
 
         @SuppressWarnings("unused")
@@ -187,6 +189,11 @@ public class UserController {
         @SuppressWarnings("unused")
         public String getEmail() {
             return email;
+        }
+
+        @SuppressWarnings("unused")
+        public Integer getScore() {
+            return score;
         }
     }
 }
