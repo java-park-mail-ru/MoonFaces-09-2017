@@ -2,7 +2,7 @@
 ### Модифицированная версия Conway's game of life
 
 ## Фронтенд [![Build Status](https://travis-ci.org/frontend-park-mail-ru/2017_2_MoonFaces.svg?branch=develop)](https://travis-ci.org/frontend-park-mail-ru/2017_2_MoonFaces)
-### [https://bacterio.herokuapp.com/](https://bacterio.herokuapp.com/)
+### [http://bacterio.herokuapp.com/](http://bacterio.herokuapp.com/)
 
 ## Бэкенд [![Build Status](https://travis-ci.org/EienKotonaru/MoonFaces-09-2017.svg?branch=master)](https://travis-ci.org/EienKotonaru/MoonFaces-09-2017)
 ### [http://bacterio-back.herokuapp.com/](http://bacterio-back.herokuapp.com/)
