@@ -48,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/signin")
-    public ResponseEntity<FailOrSuccessResponse> signIn(@RequestBody Object body,
+    public ResponseEntity<?> signIn(@RequestBody Object body,
                                                         HttpSession httpSession) {
 
         final String login;
@@ -61,6 +61,7 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "Bad request"));
         }
+
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -87,7 +88,7 @@ public class UserController {
         }
 
         httpSession.setAttribute("login", login);
-        return ResponseEntity.ok(OK_RESPONSE);
+        return ResponseEntity.ok(new UserResponse(registeredUser));
     }
 
     @PostMapping(path = "/restapi/logout")
@@ -183,10 +184,12 @@ public class UserController {
     private static final class UserResponse {
         private final String login;
         private final String email;
+        private final Integer score;
 
         private UserResponse(User user) {
             this.login = user.getLogin();
             this.email = user.getEmail();
+            this.score = user.getScore();
         }
 
         @SuppressWarnings("unused")
@@ -197,6 +200,11 @@ public class UserController {
         @SuppressWarnings("unused")
         public String getEmail() {
             return email;
+        }
+
+        @SuppressWarnings("unused")
+        public Integer getScore() {
+            return score;
         }
     }
 }

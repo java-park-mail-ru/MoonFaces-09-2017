@@ -5,6 +5,7 @@ public class User {
     private String login;
     private String email;
     private String passwordHash;
+    private Integer score;
 
     @SuppressWarnings("unused")
     public User() { }
@@ -16,6 +17,7 @@ public class User {
             passwordHash = PasswordHandler.passwordEncoder().encode(password);
         else
             passwordHash = null;
+        this.score = 0;
     }
 
 
@@ -48,4 +50,12 @@ public class User {
         this.passwordHash = PasswordHandler.passwordEncoder().encode(password);
     }
 
+    public Integer getScore() {
+        return score;
+    }
+
+    @SuppressWarnings("unused")
+    public void setScore(Integer score) {
+        this.score = score;
+    }
 }
