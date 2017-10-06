@@ -8,8 +8,8 @@ import java.util.HashMap;
 public class UserService {
     private final HashMap<String, User> registeredUser = new HashMap<String, User>();
 
-    public void addUser(String login, String email, String password) {
-        registeredUser.put(login, new User(login, email, password));
+    public void addUser(User user) {
+        registeredUser.put(user.getLogin(), user);
     }
 
     public void addUser(String login, User user) {

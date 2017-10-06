@@ -5,8 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-
 import javax.servlet.http.HttpSession;
+import java.util.Map;
 
 
 @RestController
@@ -26,11 +26,10 @@ public class UserController {
     public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User body) {
         final String login = body.getLogin();
         final String email = body.getEmail();
-        final String password = body.getPassword();
 
         if (StringUtils.isEmpty(login)
                 || StringUtils.isEmpty(email)
-                || StringUtils.isEmpty(password)) {
+                || !body.hasPassword()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
@@ -43,15 +42,25 @@ public class UserController {
 
         }
 
-        userService.addUser(login, email, password);
+        userService.addUser(body);
 
         return ResponseEntity.ok(OK_RESPONSE);
     }
 
     @PostMapping(path = "/restapi/signin")
-    public ResponseEntity<FailOrSuccessResponse> signIn(@RequestBody User body, HttpSession httpSession) {
-        final String login = body.getLogin();
-        final String password = body.getPassword();
+    public ResponseEntity<FailOrSuccessResponse> signIn(@RequestBody Object body,
+                                                        HttpSession httpSession) {
+
+        final String login;
+        final String password;
+
+        try {
+            login = (String) ((Map) body).get("login");
+            password = (String) ((Map) body).get("password");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new FailOrSuccessResponse(true, "Bad request"));
+        }
 
         if (StringUtils.isEmpty(login) || StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -72,7 +81,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
-        if (!registeredUser.getPassword().equals(password)) {
+        if (!PasswordHandler.passwordEncoder().matches(password,registeredUser.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new FailOrSuccessResponse(true, "Wrong password!"));
         }
@@ -107,9 +116,10 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/settings")
-    public ResponseEntity<?> changeUser(@RequestBody User body, HttpSession httpSession) {
+    public ResponseEntity<?> changeUser(@RequestBody User body,
+                                        @RequestParam(value = "password") String password,
+                                        HttpSession httpSession) {
         final String email = body.getEmail();
-        final String password = body.getPassword();
 
         final String currentUserLogin = (String) httpSession.getAttribute("login");
 
@@ -119,7 +129,7 @@ public class UserController {
         }
 
         if (StringUtils.isEmpty(email)
-                && StringUtils.isEmpty(password)) {
+                && !body.hasPassword()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "All fields are empty!"));
         }
@@ -132,7 +142,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This is your current email!"));
         }
 
-        if (currentUser.getPassword().equals(password)) {
+        if (PasswordHandler.passwordEncoder().matches(password,currentUser.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "This is your current password!"));
         }
