@@ -1,7 +1,9 @@
-package ru.mail.park;
+package ru.mail.park.tests;
 
 import org.junit.Assert;
 import org.junit.Test;
+import ru.mail.park.User;
+import ru.mail.park.UserService;
 
 
 public class UserServiceTest extends Assert {
