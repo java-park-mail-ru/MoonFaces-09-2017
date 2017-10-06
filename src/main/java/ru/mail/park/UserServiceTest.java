@@ -14,22 +14,23 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testAddUserWithEmptyFields() {
-        Assert.assertEquals(false,userService.addUser(new User("","","")));
+        Assert.assertEquals(false, userService.
+                addUser(new User("", "", "")));
     }
 
     @Test
     public void testAddUserCorrectUser() {
-        User newUser = new User("test", "test@test.ru","test");
+        User newUser = new User("test", "test@test.ru", "test");
 
-        Assert.assertEquals(false,userService.addUser(newUser));
+        Assert.assertEquals(false, userService.addUser(newUser));
         Assert.assertEquals(newUser, userService.getUser("test"));
     }
 
     @Test
     public void testAddExistingUser() {
         testAddUserCorrectUser();
-        User newUser = new User("test", "test@test.ru","test");
-        Assert.assertEquals(true,userService.addUser(newUser));
+        User newUser = new User("test", "test@test.ru", "test");
+        Assert.assertEquals(true, userService.addUser(newUser));
     }
 
     @Test

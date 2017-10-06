@@ -9,10 +9,11 @@ public class UserService {
     private final HashMap<String, User> registeredUser = new HashMap<String, User>();
 
     public boolean addUser(User user) {
-        if(user != null) {
+        if (user != null) {
             return registeredUser.put(user.getLogin(), user) != null;
-        } else
+        } else {
             return false;
+        }
     }
 
     public User getUser(String login) {
