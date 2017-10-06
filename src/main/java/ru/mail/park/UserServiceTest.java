@@ -14,8 +14,8 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testAddUserWithEmptyFields() {
-        Assert.assertEquals(false, userService.
-                addUser(new User("", "", "")));
+        Assert.assertEquals(false, userService
+                .addUser(new User("", "", "")));
     }
 
     @Test
