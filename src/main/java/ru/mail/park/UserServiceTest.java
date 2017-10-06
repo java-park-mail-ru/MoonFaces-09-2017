@@ -19,31 +19,41 @@ public class UserServiceTest extends Assert {
     }
 
     @Test
-    public void testAddUserCorrectUser() {
+    public void testAddCorrectUser() {
         User newUser = new User("test", "test@test.ru", "test");
 
-        Assert.assertEquals(false, userService.addUser(newUser));
+        Assert.assertEquals(true, userService.addUser(newUser));
         Assert.assertEquals(newUser, userService.getUser("test"));
     }
 
     @Test
     public void testAddExistingUser() {
-        testAddUserCorrectUser();
+        testAddCorrectUser();
         User newUser = new User("test", "test@test.ru", "test");
-        Assert.assertEquals(true, userService.addUser(newUser));
+        Assert.assertEquals(false, userService.addUser(newUser));
     }
 
     @Test
     public void testRemoveExistingUser() {
-        testAddUserCorrectUser();
+        testAddCorrectUser();
         Assert.assertEquals(true, userService.removeUser("test"));
         Assert.assertEquals(null, userService.getUser("test"));
     }
 
     @Test
-    public void testRemoveNotExistingUser() {
+    public void testRemoveNonExistingUser() {
         Assert.assertEquals(false, userService.removeUser(""));
     }
 
+    @Test
+    public void testGetExistingUser() {
+        User newUser = new User("test", "test@test.ru", "test");
+        Assert.assertEquals(true, userService.addUser(newUser));
+        Assert.assertEquals(newUser, userService.getUser("test"));
+    }
 
+    @Test
+    public void testGetNonExistingUser() {
+        Assert.assertEquals(null, userService.getUser(""));
+    }
 }

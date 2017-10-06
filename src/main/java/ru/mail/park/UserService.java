@@ -1,6 +1,7 @@
 package ru.mail.park;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 
@@ -10,7 +11,7 @@ public class UserService {
 
     public boolean addUser(User user) {
         if (user != null) {
-            return registeredUser.put(user.getLogin(), user) != null;
+            return !StringUtils.isEmpty(user.getLogin()) && registeredUser.put(user.getLogin(), user) == null;
         } else {
             return false;
         }
