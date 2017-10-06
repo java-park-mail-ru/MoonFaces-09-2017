@@ -8,12 +8,11 @@ import java.util.HashMap;
 public class UserService {
     private final HashMap<String, User> registeredUser = new HashMap<String, User>();
 
-    public void addUser(User user) {
-        registeredUser.put(user.getLogin(), user);
-    }
-
-    public void addUser(String login, User user) {
-        registeredUser.put(login, user);
+    public boolean addUser(User user) {
+        if(user != null) {
+            return registeredUser.put(user.getLogin(), user) != null;
+        } else
+            return false;
     }
 
     public User getUser(String login) {
@@ -21,7 +20,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unused")
-    public void removeUser(String login) {
-        registeredUser.remove(login);
+    public boolean removeUser(String login) {
+        return registeredUser.remove(login) != null;
     }
 }

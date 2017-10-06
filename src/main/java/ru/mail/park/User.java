@@ -13,10 +13,11 @@ public class User {
     public User(String login, String email, String password) {
         this.login = login;
         this.email = email;
-        if(!password.isEmpty())
+        if (!password.isEmpty()) {
             passwordHash = PasswordHandler.passwordEncoder().encode(password);
-        else
+        } else {
             passwordHash = null;
+        }
         this.score = 0;
     }
 

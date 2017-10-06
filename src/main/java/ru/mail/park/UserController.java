@@ -5,8 +5,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.HttpSession;
+
 import java.util.Map;
+import javax.servlet.http.HttpSession;
 
 
 @RestController
@@ -82,7 +83,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
-        if (!PasswordHandler.passwordEncoder().matches(password,registeredUser.getPasswordHash())) {
+        if (!PasswordHandler.passwordEncoder().matches(password, registeredUser.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new FailOrSuccessResponse(true, "Wrong password!"));
         }
@@ -143,7 +144,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This is your current email!"));
         }
 
-        if (PasswordHandler.passwordEncoder().matches(password,currentUser.getPasswordHash())) {
+        if (PasswordHandler.passwordEncoder().matches(password, currentUser.getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "This is your current password!"));
         }
@@ -156,7 +157,7 @@ public class UserController {
             currentUser.setPassword(password);
         }
 
-        userService.addUser(currentUserLogin, currentUser);
+        userService.addUser(currentUser);
 
         return ResponseEntity.ok(new UserResponse(currentUser));
     }
