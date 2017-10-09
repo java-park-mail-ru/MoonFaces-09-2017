@@ -118,10 +118,17 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/settings")
-    public ResponseEntity<?> changeUser(@RequestBody User body,
-                                        @RequestParam(value = "password") String password,
-                                        HttpSession httpSession) {
-        final String email = body.getEmail();
+    public ResponseEntity<?> changeUser(@RequestBody Object body, HttpSession httpSession) {
+        final String email;
+        final String password;
+
+        try {
+            email = (String) ((Map) body).get("email");
+            password = (String) ((Map) body).get("password");
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new FailOrSuccessResponse(true, "Bad request!"));
+        }
 
         final String currentUserLogin = (String) httpSession.getAttribute("login");
 
@@ -131,7 +138,7 @@ public class UserController {
         }
 
         if (StringUtils.isEmpty(email)
-                && !body.hasPassword()) {
+                && StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "All fields are empty!"));
         }
