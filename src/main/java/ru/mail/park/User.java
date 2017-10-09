@@ -1,11 +1,11 @@
 package ru.mail.park;
 
-
 public class User {
 
     private String login;
     private String email;
-    private String password;
+    private String passwordHash;
+    private Integer score;
 
     @SuppressWarnings("unused")
     public User() { }
@@ -13,7 +13,12 @@ public class User {
     public User(String login, String email, String password) {
         this.login = login;
         this.email = email;
-        this.password = password;
+        if (!password.isEmpty()) {
+            passwordHash = PasswordHandler.passwordEncoder().encode(password);
+        } else {
+            passwordHash = null;
+        }
+        this.score = 0;
     }
 
 
@@ -34,11 +39,24 @@ public class User {
         this.email = email;
     }
 
-    public String getPassword() {
-        return password;
+    public boolean hasPassword() {
+        return passwordHash != null;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.passwordHash = PasswordHandler.passwordEncoder().encode(password);
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    @SuppressWarnings("unused")
+    public void setScore(Integer score) {
+        this.score = score;
     }
 }

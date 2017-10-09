@@ -1,6 +1,7 @@
 package ru.mail.park;
 
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 
@@ -8,12 +9,9 @@ import java.util.HashMap;
 public class UserService {
     private final HashMap<String, User> registeredUser = new HashMap<String, User>();
 
-    public void addUser(String login, String email, String password) {
-        registeredUser.put(login, new User(login, email, password));
-    }
-
-    public void addUser(String login, User user) {
-        registeredUser.put(login, user);
+    public boolean addUser(User user) {
+        return user != null && !StringUtils.isEmpty(user.getLogin()) && 
+                registeredUser.put(user.getLogin(), user) == null;
     }
 
     public User getUser(String login) {
@@ -21,7 +19,7 @@ public class UserService {
     }
 
     @SuppressWarnings("unused")
-    public void removeUser(String login) {
-        registeredUser.remove(login);
+    public boolean removeUser(String login) {
+        return registeredUser.remove(login) != null;
     }
 }
