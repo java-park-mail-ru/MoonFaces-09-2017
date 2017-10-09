@@ -10,8 +10,8 @@ public class UserService {
     private final HashMap<String, User> registeredUser = new HashMap<String, User>();
 
     public boolean addUser(User user) {
-        return user != null && !StringUtils.isEmpty(user.getLogin()) && 
-                registeredUser.put(user.getLogin(), user) == null;
+        return user != null && !StringUtils.isEmpty(user.getLogin())
+                && registeredUser.put(user.getLogin(), user) == null;
     }
 
     public User getUser(String login) {
