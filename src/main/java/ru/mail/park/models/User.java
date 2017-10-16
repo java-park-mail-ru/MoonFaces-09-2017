@@ -1,4 +1,6 @@
-package ru.mail.park;
+package ru.mail.park.models;
+
+import ru.mail.park.PasswordHandler;
 
 public class User {
 
@@ -8,19 +10,19 @@ public class User {
     private Integer score;
 
     @SuppressWarnings("unused")
-    public User() { }
+    public User() {
+    }
 
-    public User(String login, String email, String password) {
+    public User(String login, String email, String password, boolean encoded) {
         this.login = login;
         this.email = email;
         if (!password.isEmpty()) {
-            passwordHash = PasswordHandler.passwordEncoder().encode(password);
+            passwordHash = !encoded ? PasswordHandler.passwordEncoder().encode(password) : password;
         } else {
             passwordHash = null;
         }
         this.score = 0;
     }
-
 
     public String getLogin() {
         return login;
