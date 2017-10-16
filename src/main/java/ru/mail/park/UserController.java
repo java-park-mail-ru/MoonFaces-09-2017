@@ -107,7 +107,7 @@ public class UserController {
         }
 
         final User currentUser = userService.getUser(currentUserLogin);
-        if(currentUser != null) {
+        if (currentUser != null) {
             return ResponseEntity.ok(new UserResponse(currentUser));
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -135,13 +135,13 @@ public class UserController {
 
         final User currentUser = userService.getUser(currentUserLogin);
 
-        if(currentUser == null) {
+        if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
         if (!StringUtils.isEmpty(password)) {
-            userService.changePassword(currentUserLogin,password);
+            userService.changePassword(currentUserLogin, password);
             currentUser.setPassword(password);
         }
         if (!StringUtils.isEmpty(password)) {

@@ -1,5 +1,6 @@
 package ru.mail.park.services;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -8,9 +9,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.mail.park.PasswordHandler;
-import ru.mail.park.models.User;
 import ru.mail.park.exceptions.UserExceptions;
-import org.jetbrains.annotations.NotNull;
+import ru.mail.park.models.User;
 
 @Service
 public class UserService implements InterfaceUserService {
@@ -24,7 +24,8 @@ public class UserService implements InterfaceUserService {
     @Override
     public void addUser(@NotNull User user) throws UserExceptions.UserAlreadyExists {
         try {
-            template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)", user.getLogin(), user.getEmail(), user.getPasswordHash());
+            template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)",
+                    user.getLogin(), user.getEmail(), user.getPasswordHash());
         } catch (DuplicateKeyException e) {
             throw new UserExceptions.UserAlreadyExists(e);
         }
@@ -51,7 +52,10 @@ public class UserService implements InterfaceUserService {
         template.update("UPDATE users SET email=? WHERE login=?", email, login);
     }
 
+    static final Integer LOGIN = 1;
+    static final Integer EMAIL = 2;
+    static final Integer PASSWORD = 3;
     private static final RowMapper<User> USER_MAPPER =
-            (res, rowNum) -> new User(res.getString(1), res.getString(2), res.getString(3), true);
+            (res, rowNum) -> new User(res.getString(LOGIN), res.getString(EMAIL), res.getString(PASSWORD), true);
 }
 

@@ -17,7 +17,11 @@ public class User {
         this.login = login;
         this.email = email;
         if (!password.isEmpty()) {
-            passwordHash = !encoded ? PasswordHandler.passwordEncoder().encode(password) : password;
+            if (!encoded) {
+                passwordHash = PasswordHandler.passwordEncoder().encode(password);
+            } else {
+                passwordHash = password;
+            }
         } else {
             passwordHash = null;
         }
