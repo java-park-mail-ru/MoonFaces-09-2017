@@ -68,7 +68,7 @@ public class UserServiceTest extends Assert {
 
         final User created = userService.getUser(user.getLogin());
         if(created != null) {
-            assertEquals(PasswordHandler.passwordEncoder().encode(newPassword), created.getPasswordHash());
+            assertTrue(PasswordHandler.passwordEncoder().matches(newPassword, created.getPasswordHash()));
             assertEquals(newEmail, created.getEmail());
         }
     }
