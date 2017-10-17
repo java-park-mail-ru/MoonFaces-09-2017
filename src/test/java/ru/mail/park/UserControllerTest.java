@@ -48,7 +48,6 @@ public class UserControllerTest {
                 .header("content-type", "application/json")
                 .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
                 .andExpect(status().is4xxClientError());
-        assertEquals(1, countRowsInTable(template, "users"));
     }
 
     @Test
