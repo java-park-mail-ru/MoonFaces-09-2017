@@ -1,10 +1,12 @@
 package ru.mail.park;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.mail.park.exceptions.UserExceptions;
@@ -17,7 +19,15 @@ import ru.mail.park.services.UserService;
 public class UserServiceTest extends Assert {
 
     @Autowired
+    private JdbcTemplate template;
+
+    @Autowired
     private UserService userService;
+
+    @After
+    public void clearTestTable() {
+        template.execute("TRUNCATE TABLE users");
+    }
 
     @Test
     public void testUser() {
