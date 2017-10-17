@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 
 
 @RestController
-@CrossOrigin(origins = {"http://bacterio.herokuapp.com", "http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(origins = {"https://bacterio.herokuapp.com", "http://localhost:3000", "http://127.0.0.1:3000"})
 public class UserController {
 
     private static final FailOrSuccessResponse OK_RESPONSE = new FailOrSuccessResponse(false, null);
