@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.mail.park.exceptions.UserExceptions;
-import ru.mail.park.models.SettingsRequest;
+import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 import ru.mail.park.models.UserRequest;
+import ru.mail.park.requests.SettingsRequest;
 import ru.mail.park.services.UserService;
 
 import javax.servlet.http.HttpSession;
@@ -40,10 +40,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
-
+        body.evaluateHash();
         try {
             userService.addUser(body);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+        } catch (UserAlreadyExists userAlreadyExists) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "User already signed up!"));
         }
@@ -75,7 +75,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
-        if (!PasswordHandler.passwordEncoder().matches(password, registeredUser.getPasswordHash())) {
+        if (!PasswordHandler.passwordEncoder().matches(password, registeredUser.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new FailOrSuccessResponse(true, "Wrong password!"));
         }

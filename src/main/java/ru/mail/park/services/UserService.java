@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.mail.park.PasswordHandler;
-import ru.mail.park.exceptions.UserExceptions;
+import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 
 @Service
@@ -22,12 +22,12 @@ public class UserService implements InterfaceUserService {
     }
 
     @Override
-    public void addUser(@NotNull User user) throws UserExceptions.UserAlreadyExists {
+    public void addUser(@NotNull User user) throws UserAlreadyExists {
         try {
             template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)",
-                    user.getLogin(), user.getEmail(), user.getPasswordHash());
+                    user.getLogin(), user.getEmail(), user.getPassword());
         } catch (DuplicateKeyException e) {
-            throw new UserExceptions.UserAlreadyExists(e);
+            throw new UserAlreadyExists(e);
         }
     }
 
@@ -56,6 +56,6 @@ public class UserService implements InterfaceUserService {
     static final Integer EMAIL = 2;
     static final Integer PASSWORD = 3;
     private static final RowMapper<User> USER_MAPPER =
-            (res, rowNum) -> new User(res.getString(LOGIN), res.getString(EMAIL), res.getString(PASSWORD), true);
+            (res, rowNum) -> new User(res.getString(LOGIN), res.getString(EMAIL), res.getString(PASSWORD));
 }
 
