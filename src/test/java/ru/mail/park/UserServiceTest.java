@@ -2,7 +2,9 @@ package ru.mail.park;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,19 +26,18 @@ public class UserServiceTest extends Assert {
     @Autowired
     private UserService userService;
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     @After
     public void clearTestTable() {
         template.execute("TRUNCATE TABLE users");
     }
 
     @Test
-    public void testUser() {
+    public void testUser() throws UserAlreadyExists {
         final User user = new User("123", "123", "123");
-        try {
-            userService.addUser(user);
-        } catch (UserAlreadyExists userAlreadyExists) {
-            assert false;
-        }
+        userService.addUser(user);
         final User created = userService.getUser(user.getLogin());
         assertNotNull(created);
         assertEquals(user.getLogin(), created.getLogin());
@@ -45,29 +46,18 @@ public class UserServiceTest extends Assert {
     }
 
     @Test
-    public void testExistingUser() {
+    public void testExistingUser() throws UserAlreadyExists {
         final User user = new User("34", "13242323", "122353");
-        try {
-            userService.addUser(user);
-        } catch (UserAlreadyExists userAlreadyExists) {
-            assert false;
-        }
-        try {
-            userService.addUser(user);
-        } catch (UserAlreadyExists userAlreadyExists) {
-            return;
-        }
+        userService.addUser(user);
+        expectedException.expect(RuntimeException.class);
+        userService.addUser(user);
         assert false;
     }
 
     @Test
-    public void testChangingUser() {
+    public void testChangingUser() throws UserAlreadyExists{
         final User user = new User("321", "312", "231");
-        try {
-            userService.addUser(user);
-        } catch (UserAlreadyExists userAlreadyExists) {
-            assert false;
-        }
+        userService.addUser(user);
 
         final String newPassword = "234";
         userService.changePassword(user.getLogin(), newPassword);
