@@ -25,7 +25,7 @@ public class UserService implements InterfaceUserService {
     public void addUser(@NotNull User user) throws UserAlreadyExists {
         try {
             template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)",
-                    user.getLogin(), user.getEmail(), user.getPasswordHash());
+                    user.getLogin(), user.getEmail(), user.getPassword());
         } catch (DuplicateKeyException e) {
             throw new UserAlreadyExists(e);
         }

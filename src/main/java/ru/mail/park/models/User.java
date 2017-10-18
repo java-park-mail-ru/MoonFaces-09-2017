@@ -6,22 +6,22 @@ public class User {
 
     private String login;
     private String email;
-    private String passwordHash;
+    private String password;
     private int score;
 
     @SuppressWarnings("unused")
     public User() {
     }
 
-    public User(String login, String email, String passwordHash) {
+    public User(String login, String email, String password) {
         this.login = login;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.score = 0;
     }
 
     public void evaluateHash() {
-        this.passwordHash = PasswordHandler.passwordEncoder().encode(this.passwordHash);
+        this.password = PasswordHandler.passwordEncoder().encode(this.password);
     }
 
     public String getLogin() {
@@ -42,15 +42,15 @@ public class User {
     }
 
     public boolean hasPassword() {
-        return passwordHash != null;
+        return password != null;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String passwordHash) {
+        this.password = passwordHash;
     }
 
     public Integer getScore() {

@@ -30,19 +30,19 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/signup")
-    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User user) {
-        final String login = user.getLogin();
-        final String email = user.getEmail();
+    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User body) {
+        final String login = body.getLogin();
+        final String email = body.getEmail();
 
         if (StringUtils.isEmpty(login)
                 || StringUtils.isEmpty(email)
-                || !user.hasPassword()) {
+                || !body.hasPassword()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
-        user.evaluateHash();
+        body.evaluateHash();
         try {
-            userService.addUser(user);
+            userService.addUser(body);
         } catch (UserAlreadyExists userAlreadyExists) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "User already signed up!"));
@@ -75,7 +75,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
-        if (!PasswordHandler.passwordEncoder().matches(password, registeredUser.getPasswordHash())) {
+        if (!PasswordHandler.passwordEncoder().matches(password, registeredUser.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new FailOrSuccessResponse(true, "Wrong password!"));
         }
@@ -142,7 +142,7 @@ public class UserController {
 
         if (!StringUtils.isEmpty(password)) {
             userService.changePassword(currentUserLogin, password);
-            currentUser.setPasswordHash(password);
+            currentUser.setPassword(password);
         }
         if (!StringUtils.isEmpty(password)) {
             userService.changeEmail(currentUserLogin, email);

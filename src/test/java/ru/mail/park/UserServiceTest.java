@@ -40,7 +40,7 @@ public class UserServiceTest extends Assert {
         final User created = userService.getUser(user.getLogin());
         assertNotNull(created);
         assertEquals(user.getLogin(), created.getLogin());
-        assertEquals(user.getPasswordHash(), created.getPasswordHash());
+        assertEquals(user.getPassword(), created.getPassword());
         assertEquals(user.getEmail(), created.getEmail());
     }
 
@@ -77,7 +77,7 @@ public class UserServiceTest extends Assert {
 
         final User created = userService.getUser(user.getLogin());
         if(created != null) {
-            assertTrue(PasswordHandler.passwordEncoder().matches(newPassword, created.getPasswordHash()));
+            assertTrue(PasswordHandler.passwordEncoder().matches(newPassword, created.getPassword()));
             assertEquals(newEmail, created.getEmail());
         }
     }
