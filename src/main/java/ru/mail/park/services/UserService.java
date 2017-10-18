@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import ru.mail.park.PasswordHandler;
-import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 
 @Service
@@ -22,12 +21,12 @@ public class UserService implements InterfaceUserService {
     }
 
     @Override
-    public void addUser(@NotNull User user) throws UserAlreadyExists {
+    public void addUser(@NotNull User user) {
         try {
             template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)",
                     user.getLogin(), user.getEmail(), user.getPassword());
         } catch (DuplicateKeyException e) {
-            throw new UserAlreadyExists(e);
+            throw new RuntimeException(e);
         }
     }
 

@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 import ru.mail.park.models.UserRequest;
 import ru.mail.park.requests.SettingsRequest;
@@ -41,12 +40,16 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
         body.evaluateHash();
-        try {
-            userService.addUser(body);
-        } catch (UserAlreadyExists userAlreadyExists) {
+
+        final User checkIfExist = userService.getUser(login);
+
+        if (checkIfExist != null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "User already signed up!"));
+
         }
+
+        userService.addUser(body);
         return ResponseEntity.ok(OK_RESPONSE);
     }
 
