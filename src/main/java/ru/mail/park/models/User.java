@@ -7,25 +7,21 @@ public class User {
     private String login;
     private String email;
     private String passwordHash;
-    private Integer score;
+    private int score;
 
     @SuppressWarnings("unused")
     public User() {
     }
 
-    public User(String login, String email, String password, boolean encoded) {
+    public User(String login, String email, String passwordHash) {
         this.login = login;
         this.email = email;
-        if (!password.isEmpty()) {
-            if (!encoded) {
-                passwordHash = PasswordHandler.passwordEncoder().encode(password);
-            } else {
-                passwordHash = password;
-            }
-        } else {
-            passwordHash = null;
-        }
+        this.passwordHash = passwordHash;
         this.score = 0;
+    }
+
+    public void evaluateHash() {
+        this.passwordHash = PasswordHandler.passwordEncoder().encode(this.passwordHash);
     }
 
     public String getLogin() {
@@ -53,8 +49,8 @@ public class User {
         return passwordHash;
     }
 
-    public void setPassword(String password) {
-        this.passwordHash = PasswordHandler.passwordEncoder().encode(password);
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public Integer getScore() {

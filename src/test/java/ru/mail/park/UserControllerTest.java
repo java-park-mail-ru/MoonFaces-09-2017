@@ -12,7 +12,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import ru.mail.park.requests.Requests;
+import ru.mail.park.requests.SettingsRequest;
+import ru.mail.park.requests.SigninRequest;
+import ru.mail.park.requests.SignupRequest;
+import ru.mail.park.requests.Utilities;
 
 import static org.junit.Assert.assertEquals;
 import static org.springframework.test.jdbc.JdbcTestUtils.countRowsInTable;
@@ -36,17 +39,17 @@ public class UserControllerTest {
         //BAD_REQUEST
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("", "", ""))))
+                .content(Utilities.makeJson(new SignupRequest("", "", ""))))
                 .andExpect(status().is4xxClientError());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
                 .andExpect(status().isOk());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
                 .andExpect(status().is4xxClientError());
         assertEquals(1, countRowsInTable(template, "users"));
     }
@@ -56,33 +59,33 @@ public class UserControllerTest {
         //SignUp
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
                 .andExpect(status().isOk());
         //BAD_REQUEST
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("", ""))))
+                .content(Utilities.makeJson(new SigninRequest("", ""))))
                 .andExpect(status().is4xxClientError());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "password"))))
                 .andExpect(status().isOk());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .sessionAttr("login", "login")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "password"))))
                 .andExpect(status().is4xxClientError());
         //NOT_FOUND
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("another_login", "password"))))
+                .content(Utilities.makeJson(new SigninRequest("another_login", "password"))))
                 .andExpect(status().is4xxClientError());
         //UNAUTHORIZED
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "another_password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "another_password"))))
                 .andExpect(status().is4xxClientError());
     }
 
@@ -104,12 +107,12 @@ public class UserControllerTest {
         //SignUp
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
                 .andExpect(status().isOk());
         //SignIn
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "password"))))
                 .andExpect(status().isOk());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.get("/restapi/current")
@@ -127,39 +130,39 @@ public class UserControllerTest {
         //SignUp
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SignupRequest("login", "password", "email"))))
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
                 .andExpect(status().isOk());
         //SignIn
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "password"))))
                 .andExpect(status().isOk());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //NOT_FOUND
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .sessionAttr("login", "another_login")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //BAD_REQUEST
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SettingsRequest("", ""))))
+                .content(Utilities.makeJson(new SettingsRequest("", ""))))
                 .andExpect(status().is4xxClientError());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .sessionAttr("login", "login")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("new_email"));
         //Logout
@@ -170,7 +173,7 @@ public class UserControllerTest {
         //SignIn
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Requests.makeJson(new Requests.SigninRequest("login", "new_password"))))
+                .content(Utilities.makeJson(new SigninRequest("login", "new_password"))))
                 .andExpect(status().isOk());
     }
 }

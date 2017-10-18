@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import ru.mail.park.exceptions.UserExceptions;
-import ru.mail.park.models.SettingsRequest;
+import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 import ru.mail.park.models.UserRequest;
+import ru.mail.park.requests.SettingsRequest;
 import ru.mail.park.services.UserService;
 
 import javax.servlet.http.HttpSession;
@@ -30,20 +30,20 @@ public class UserController {
     }
 
     @PostMapping(path = "/restapi/signup")
-    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User body) {
-        final String login = body.getLogin();
-        final String email = body.getEmail();
+    public ResponseEntity<FailOrSuccessResponse> signUp(@RequestBody User user) {
+        final String login = user.getLogin();
+        final String email = user.getEmail();
 
         if (StringUtils.isEmpty(login)
                 || StringUtils.isEmpty(email)
-                || !body.hasPassword()) {
+                || !user.hasPassword()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
-
+        user.evaluateHash();
         try {
-            userService.addUser(body);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+            userService.addUser(user);
+        } catch (UserAlreadyExists userAlreadyExists) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "User already signed up!"));
         }
@@ -142,7 +142,7 @@ public class UserController {
 
         if (!StringUtils.isEmpty(password)) {
             userService.changePassword(currentUserLogin, password);
-            currentUser.setPassword(password);
+            currentUser.setPasswordHash(password);
         }
         if (!StringUtils.isEmpty(password)) {
             userService.changeEmail(currentUserLogin, email);

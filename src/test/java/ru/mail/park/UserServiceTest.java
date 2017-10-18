@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.mail.park.exceptions.UserExceptions;
+import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
 import ru.mail.park.services.UserService;
 
@@ -31,31 +31,30 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testUser() {
-        final User user = new User("123", "123", "123", false);
+        final User user = new User("123", "123", "123");
         try {
             userService.addUser(user);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+        } catch (UserAlreadyExists userAlreadyExists) {
             assert false;
         }
         final User created = userService.getUser(user.getLogin());
-        if(created != null) {
-            assertEquals(user.getLogin(), created.getLogin());
-            assertEquals(user.getPasswordHash(), created.getPasswordHash());
-            assertEquals(user.getEmail(), created.getEmail());
-        }
+        assertNotNull(created);
+        assertEquals(user.getLogin(), created.getLogin());
+        assertEquals(user.getPasswordHash(), created.getPasswordHash());
+        assertEquals(user.getEmail(), created.getEmail());
     }
 
     @Test
     public void testExistingUser() {
-        final User user = new User("34", "13242323", "122353", false);
+        final User user = new User("34", "13242323", "122353");
         try {
             userService.addUser(user);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+        } catch (UserAlreadyExists userAlreadyExists) {
             assert false;
         }
         try {
             userService.addUser(user);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+        } catch (UserAlreadyExists userAlreadyExists) {
             return;
         }
         assert false;
@@ -63,10 +62,10 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testChangingUser() {
-        final User user = new User("321", "312", "231", false);
+        final User user = new User("321", "312", "231");
         try {
             userService.addUser(user);
-        } catch (UserExceptions.UserAlreadyExists userAlreadyExists) {
+        } catch (UserAlreadyExists userAlreadyExists) {
             assert false;
         }
 
