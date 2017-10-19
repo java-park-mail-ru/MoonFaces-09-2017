@@ -17,7 +17,7 @@ import ru.mail.park.requests.SettingsRequest;
 import ru.mail.park.requests.SigninRequest;
 import ru.mail.park.requests.SignupRequest;
 import ru.mail.park.requests.Utilities;
-import ru.mail.park.services.UserService;
+import ru.mail.park.services.UserServiceImpl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -38,7 +38,7 @@ public class UserControllerTest {
     protected JdbcTemplate template;
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Test
     public void testSignupUser() throws Exception {

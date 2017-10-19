@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.mail.park.exceptions.UserAlreadyExists;
 import ru.mail.park.models.User;
-import ru.mail.park.services.UserService;
+import ru.mail.park.services.UserServiceImpl;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -24,7 +24,7 @@ public class UserServiceTest extends Assert {
     private JdbcTemplate template;
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userService;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
