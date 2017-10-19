@@ -36,7 +36,7 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testUser() throws UserAlreadyExists {
-        final User user = new User("123", "123", "123");
+        final User user = new User("login", "email", "password");
         userService.addUser(user);
         final User created = userService.getUser(user.getLogin());
         assertNotNull(created);
@@ -47,26 +47,32 @@ public class UserServiceTest extends Assert {
 
     @Test
     public void testExistingUser() throws UserAlreadyExists {
-        final User user = new User("34", "13242323", "122353");
+        final User user = new User("login", "email", "password");
         userService.addUser(user);
         expectedException.expect(RuntimeException.class);
         userService.addUser(user);
-        assert false;
     }
 
     @Test
     public void testChangingUser() throws UserAlreadyExists{
-        final User user = new User("321", "312", "231");
+        final User user = new User("login", "email", "password");
         userService.addUser(user);
 
-        final String newPassword = "234";
-        userService.changePassword(user.getLogin(), newPassword);
+        final User addedUser = userService.getUser(user.getLogin());
+        assertNotNull(addedUser);
 
-        final String newEmail = "234";
-        userService.changeEmail(user.getLogin(), newEmail);
+        final String newLogin = "new_login";
+        userService.changeLogin(addedUser.getId(), newLogin);
+
+        final String newPassword = "new_password";
+        userService.changePassword(addedUser.getId(), newPassword);
+
+        final String newEmail = "new_email";
+        userService.changeEmail(addedUser.getId(), newEmail);
 
         final User created = userService.getUser(user.getLogin());
         if(created != null) {
+            assertEquals(newLogin, created.getLogin());
             assertTrue(PasswordHandler.passwordEncoder().matches(newPassword, created.getPassword()));
             assertEquals(newEmail, created.getEmail());
         }

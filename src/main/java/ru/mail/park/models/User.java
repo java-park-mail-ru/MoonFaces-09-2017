@@ -4,6 +4,7 @@ import ru.mail.park.PasswordHandler;
 
 public class User {
 
+    private int id;
     private String login;
     private String email;
     private String password;
@@ -11,6 +12,14 @@ public class User {
 
     @SuppressWarnings("unused")
     public User() {
+    }
+
+    public User(int id, String login, String email, String password, int score) {
+        this.id = id;
+        this.login = login;
+        this.email = email;
+        this.password = password;
+        this.score = score;
     }
 
     public User(String login, String email, String password) {
@@ -22,6 +31,10 @@ public class User {
 
     public void evaluateHash() {
         this.password = PasswordHandler.passwordEncoder().encode(this.password);
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getLogin() {

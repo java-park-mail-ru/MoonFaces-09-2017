@@ -9,7 +9,7 @@ public interface InterfaceUserService {
 
     User getUser(@NotNull String login);
 
-    void changePassword(String login, String newPassword);
+    void changePassword(Integer id, String newPassword);
 
-    void changeEmail(String login, String email);
+    void changeEmail(Integer id, String email);
 }

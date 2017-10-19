@@ -73,7 +73,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
-                .sessionAttr("login", "login")
+                .sessionAttr("id", 1)
                 .header("content-type", "application/json")
                 .content(Utilities.makeJson(new SigninRequest("login", "password"))))
                 .andExpect(status().is4xxClientError());
@@ -93,7 +93,7 @@ public class UserControllerTest {
     public void testLogout() throws Exception {
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/logout")
-                .sessionAttr("login", "login")
+                .sessionAttr("id", 2)
                 .header("content-type", "application/json"))
                 .andExpect(status().isOk());
         //FORBIDDEN
@@ -116,7 +116,7 @@ public class UserControllerTest {
                 .andExpect(status().isOk());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.get("/restapi/current")
-                .sessionAttr("login", "login"))
+                .sessionAttr("id", 3))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.login").value("login"))
                 .andExpect(jsonPath("$.email").value("email"));
@@ -140,40 +140,40 @@ public class UserControllerTest {
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_login","new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //NOT_FOUND
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
-                .sessionAttr("login", "another_login")
+                .sessionAttr("id", 9)
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_login","new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //BAD_REQUEST
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SettingsRequest("", ""))))
+                .content(Utilities.makeJson(new SettingsRequest("","", ""))))
                 .andExpect(status().is4xxClientError());
         //FORBIDDEN
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_login","new_email", "new_password"))))
                 .andExpect(status().is4xxClientError());
         //OK_RESPONSE
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/settings")
-                .sessionAttr("login", "login")
+                .sessionAttr("id", 4)
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SettingsRequest("new_email", "new_password"))))
+                .content(Utilities.makeJson(new SettingsRequest("new_login","new_email", "new_password"))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("new_email"));
         //Logout
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/logout")
-                .sessionAttr("login", "login")
+                .sessionAttr("id", 4)
                 .header("content-type", "application/json"))
                 .andExpect(status().isOk());
         //SignIn
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signin")
                 .header("content-type", "application/json")
-                .content(Utilities.makeJson(new SigninRequest("login", "new_password"))))
+                .content(Utilities.makeJson(new SigninRequest("new_login", "new_password"))))
                 .andExpect(status().isOk());
     }
 }
