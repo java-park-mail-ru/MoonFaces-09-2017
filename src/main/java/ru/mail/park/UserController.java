@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 
 
 @RestController
-@CrossOrigin(origins = {"http://bacterio.herokuapp.com", "http://localhost:3000", "http://127.0.0.1:3000"})
+@CrossOrigin(origins = {"http://bacterio.herokuapp.com", "https://bacterio.herokuapp.com", "http://localhost:3000", "http://127.0.0.1:3000"})
 public class UserController {
 
     private static final FailOrSuccessResponse OK_RESPONSE = new FailOrSuccessResponse(false, null);
@@ -64,7 +64,7 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "Empty fields!"));
         }
 
-        final String checkIfSignedIn = (String) httpSession.getAttribute("login");
+        final Integer checkIfSignedIn = (Integer) httpSession.getAttribute("id");
 
         if (checkIfSignedIn != null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -83,13 +83,13 @@ public class UserController {
                     .body(new FailOrSuccessResponse(true, "Wrong password!"));
         }
 
-        httpSession.setAttribute("login", login);
+        httpSession.setAttribute("id", registeredUser.getId());
         return ResponseEntity.ok(new UserResponse(registeredUser));
     }
 
     @PostMapping(path = "/restapi/logout")
     public ResponseEntity<FailOrSuccessResponse> logOut(HttpSession httpSession) {
-        final String checkIfSignedIn = (String) httpSession.getAttribute("login");
+        final Integer checkIfSignedIn = (Integer) httpSession.getAttribute("id");
 
         if (checkIfSignedIn == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -102,14 +102,14 @@ public class UserController {
 
     @GetMapping(path = "/restapi/current")
     public ResponseEntity<?> currentUser(HttpSession httpSession) {
-        final String currentUserLogin = (String) httpSession.getAttribute("login");
+        final Integer currentUserId = (Integer) httpSession.getAttribute("id");
 
-        if (currentUserLogin == null) {
+        if (currentUserId == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "Nobody is signed in!"));
         }
 
-        final User currentUser = userService.getUser(currentUserLogin);
+        final User currentUser = userService.getUser(currentUserId);
         if (currentUser != null) {
             return ResponseEntity.ok(new UserResponse(currentUser));
         } else {
@@ -120,38 +120,43 @@ public class UserController {
 
     @PostMapping(path = "/restapi/settings")
     public ResponseEntity<?> changeUser(@RequestBody SettingsRequest body, HttpSession httpSession) {
+        final String login = body.getLogin();
         final String email = body.getEmail();
         final String password = body.getPassword();
 
-        final String currentUserLogin = (String) httpSession.getAttribute("login");
+        final Integer currentUserId = (Integer) httpSession.getAttribute("id");
 
-        if (currentUserLogin == null) {
+        if (currentUserId == null) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(new FailOrSuccessResponse(true, "You're not signed in!"));
         }
 
-        if (StringUtils.isEmpty(email)
+        if (StringUtils.isEmpty(login)
+                && StringUtils.isEmpty(email)
                 && StringUtils.isEmpty(password)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new FailOrSuccessResponse(true, "All fields are empty!"));
         }
 
-        final User currentUser = userService.getUser(currentUserLogin);
+        final User currentUser = userService.getUser(currentUserId);
 
         if (currentUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new FailOrSuccessResponse(true, "This user is not signed up!"));
         }
 
+        if (!StringUtils.isEmpty(login)) {
+            userService.changeLogin(currentUserId, login);
+            currentUser.setEmail(login);
+        }
         if (!StringUtils.isEmpty(password)) {
-            userService.changePassword(currentUserLogin, password);
+            userService.changePassword(currentUserId, password);
             currentUser.setPassword(password);
         }
         if (!StringUtils.isEmpty(password)) {
-            userService.changeEmail(currentUserLogin, email);
+            userService.changeEmail(currentUserId, email);
             currentUser.setEmail(email);
         }
-
 
         return ResponseEntity.ok(new UserResponse(currentUser));
     }
