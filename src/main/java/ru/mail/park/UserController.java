@@ -1,5 +1,6 @@
 package ru.mail.park;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import ru.mail.park.requests.SettingsRequest;
 import ru.mail.park.services.UserService;
 
 import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @RestController
@@ -22,6 +25,11 @@ public class UserController {
     private static final FailOrSuccessResponse OK_RESPONSE = new FailOrSuccessResponse(false, null);
 
     private final UserService userService;
+
+    private static final int SCOREBOARD_LIMIT = 5;
+
+    private static final int SCOREBOARD_OFFSET = 0;
+
 
     @Autowired
     public UserController(UserService userService) {
@@ -161,6 +169,17 @@ public class UserController {
         return ResponseEntity.ok(new UserResponse(currentUser));
     }
 
+    @GetMapping(path = "/restapi/scoreboard")
+    public ResponseEntity<?> topPlayers() {
+        final List<User> topPlayers = userService.getTopPlayers(SCOREBOARD_LIMIT,SCOREBOARD_OFFSET);
+        if (!topPlayers.isEmpty()) {
+            return ResponseEntity.ok(new LeaderboardResponse(topPlayers));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new FailOrSuccessResponse(true, "Users list is empty! "));
+        }
+    }
+
     private static final class FailOrSuccessResponse {
         private final Boolean error;
         private final String description;
@@ -206,6 +225,24 @@ public class UserController {
         @SuppressWarnings("unused")
         public Integer getScore() {
             return score;
+        }
+    }
+
+    public class LeaderboardResponse {
+        private final List<UserResponse> users;
+
+        @JsonCreator
+        public LeaderboardResponse(List<User> users) {
+            this.users = users.
+                    stream()
+                    .map(UserResponse::new)
+                    .collect(Collectors.toList())
+            ;
+        }
+
+        @SuppressWarnings("unused")
+        public List<UserResponse> getUsers() {
+            return users;
         }
     }
 }
