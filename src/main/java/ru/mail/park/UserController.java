@@ -13,9 +13,10 @@ import ru.mail.park.models.UserRequest;
 import ru.mail.park.requests.SettingsRequest;
 import ru.mail.park.services.UserService;
 
-import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpSession;
+
 
 
 @RestController
@@ -171,7 +172,7 @@ public class UserController {
 
     @GetMapping(path = "/restapi/scoreboard")
     public ResponseEntity<?> topPlayers() {
-        final List<User> topPlayers = userService.getTopPlayers(SCOREBOARD_LIMIT,SCOREBOARD_OFFSET);
+        final List<User> topPlayers = userService.getTopPlayers(SCOREBOARD_LIMIT, SCOREBOARD_OFFSET);
         if (!topPlayers.isEmpty()) {
             return ResponseEntity.ok(new LeaderboardResponse(topPlayers));
         } else {
@@ -233,11 +234,10 @@ public class UserController {
 
         @JsonCreator
         public LeaderboardResponse(List<User> users) {
-            this.users = users.
-                    stream()
+            this.users = users
+                    .stream()
                     .map(UserResponse::new)
-                    .collect(Collectors.toList())
-            ;
+                    .collect(Collectors.toList());
         }
 
         @SuppressWarnings("unused")

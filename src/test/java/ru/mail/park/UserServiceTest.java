@@ -99,9 +99,8 @@ public class UserServiceTest extends Assert {
         userService.changeScore(addedUser2.getId(), 2);
 
         final List<User> result = userService.getTopPlayers(2,0);
-        final List<User> rightResult = List.of(addedUser2, addedUser);
 
-        assertEquals(result.get(0).getId(), rightResult.get(0).getId());
-        assertEquals(result.get(1).getId(), rightResult.get(1).getId());
+        assertEquals(result.get(0).getId(), addedUser2.getId());
+        assertEquals(result.get(1).getId(), addedUser.getId());
     }
 }
