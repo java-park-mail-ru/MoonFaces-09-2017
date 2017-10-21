@@ -41,6 +41,36 @@ public class UserControllerTest {
     private UserServiceImpl userService;
 
     @Test
+    public void testScoreboard() throws Exception {
+        //NOT_FOUND
+        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard"))
+                .andExpect(status().is4xxClientError());
+        //SignUp
+        mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
+                .header("content-type", "application/json")
+                .content(Utilities.makeJson(new SignupRequest("login", "password", "email"))))
+                .andExpect(status().isOk());
+
+        final User user = userService.getUser("login");
+        assertNotNull(user);
+
+        //SignUp
+        mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
+                .header("content-type", "application/json")
+                .content(Utilities.makeJson(new SignupRequest("login2", "password2", "email2"))))
+                .andExpect(status().isOk());
+
+        final User user2 = userService.getUser("login2");
+        assertNotNull(user2);
+
+        //OK_RESPONSE
+        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.users[0].login").value("login"))
+                .andExpect(jsonPath("$.users[1].login").value("login2"));
+    }
+
+    @Test
     public void testSignupUser() throws Exception {
         //BAD_REQUEST
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")

@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import ru.mail.park.PasswordHandler;
 import ru.mail.park.models.User;
 
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
     private final JdbcTemplate template;
@@ -23,8 +25,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addUser(@NotNull User user) {
         try {
-            template.update("INSERT INTO users(login, email, password) VALUES(?, ?, ?)",
-                    user.getLogin(), user.getEmail(), user.getPassword());
+            template.update("INSERT INTO users(login, email, password, score) VALUES(?, ?, ?, ?)",
+                    user.getLogin(), user.getEmail(), user.getPassword(), user.getScore());
         } catch (DuplicateKeyException e) {
             throw new RuntimeException(e);
         }
@@ -40,6 +42,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     @Nullable
     public User getUser(@NotNull Integer id) {
         try {
@@ -49,6 +52,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
     public void changeLogin(Integer id, String newLogin) {
         template.update("UPDATE users SET login=? WHERE id=?", newLogin, id);
     }
@@ -62,6 +66,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeEmail(Integer id, String newEmail) {
         template.update("UPDATE users SET email=? WHERE id=?", newEmail, id);
+    }
+
+    @Override
+    public void changeScore(Integer id, Integer newScore) {
+        template.update("UPDATE users SET score=? WHERE id=?", newScore, id);
+    }
+
+    @Override
+    public List<User> getTopPlayers(int limit, int offset) {
+        return template.query(
+                "SELECT id, login, email, password, score FROM users ORDER BY score DESC, login ASC LIMIT ? OFFSET ?",
+                USER_MAPPER, limit, offset
+        );
     }
 
     static final int USER_ID = 1;
