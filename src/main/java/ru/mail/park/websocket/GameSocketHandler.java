@@ -27,20 +27,28 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        LOGGER.warn("User Disconnected");
+        try {
+            int id = (Integer) session.getAttributes().get("id");
+            User user = userService.getUser(id);
+            this.socketActionHandler.removeUser(user);
+        } catch (NullPointerException ignored) {
+        }
         SESSIONS.remove(session);
+        LOGGER.warn("User Disconnected");
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
         final Integer id = (Integer) webSocketSession.getAttributes().get("id");
-        if (id == null ||userService.getUser(id) == null) {
+        if (id == null || userService.getUser(id) == null) {
             LOGGER.error("Only authenticated users allowed to play a game");
             webSocketSession.close();
             return;
         }
         SESSIONS.add(webSocketSession);
-        LOGGER.info(String.format("New user connection %s", userService.getUser(id).getLogin()));
+        User user = userService.getUser(id);
+        this.socketActionHandler.registerUser(user, webSocketSession);
+        LOGGER.info(String.format("New user connection %s", user.getLogin()));
     }
 
     @Override
