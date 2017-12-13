@@ -7,6 +7,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import ru.mail.park.models.User;
 import ru.mail.park.services.UserService;
 
 import java.util.*;
@@ -17,13 +18,16 @@ public class GameSocketHandler extends TextWebSocketHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameSocketHandler.class);
 
     private final UserService userService;
+    private SocketActionHandler socketActionHandler = null;
 
     public GameSocketHandler(UserService userService) {
         this.userService = userService;
+        this.socketActionHandler = SocketActionHandler.getInstance(LOGGER, SESSIONS);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        LOGGER.warn("User Disconnected");
         SESSIONS.remove(session);
     }
 
@@ -40,7 +44,12 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        LOGGER.info(String.format("New message\n%s", message.getPayload()));
+    protected void handleTextMessage(WebSocketSession webSocketSession, TextMessage message) throws Exception {
+        User user = userService.getUser((Integer) webSocketSession.getAttributes().get("id"));
+        LOGGER.info(String.format(
+                "New message from @%s@  %s",
+                user.getLogin(),
+                message.getPayload()));
+        socketActionHandler.handleActionJson(user, message.getPayload(), webSocketSession);
     }
 }
