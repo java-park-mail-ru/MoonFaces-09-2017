@@ -50,9 +50,11 @@ public class SocketActionHandler {
 
     public void registerUser(User user, WebSocketSession session) {
         this.userSession.put(user.getLogin(), session);
+        this.sendMessage(session, this.getAllGamesAjaxString());
     }
 
     public void removeUser(User user) {
+        // todo: remove all user data
         this.userSession.remove(user.getLogin());
     }
 
@@ -84,10 +86,10 @@ public class SocketActionHandler {
                 JSONObject ownerResponse = new JSONObject();
                 JSONArray jsonGameField = new JSONArray(room.getGameField());
 
-                response.put("status", "connected");
+                response.put("type", "CONNECTED");
                 response.put("game_field", jsonGameField);
 
-                ownerResponse.put("status", "opponent_found");
+                ownerResponse.put("type", "OPPONENT_FOUND");
                 ownerResponse.put("game_field", jsonGameField);
 
                 this.sendMessage(webSocket, response.toString());
@@ -111,19 +113,22 @@ public class SocketActionHandler {
     }
 
     private void notifyGameList(){
+        this.notifyAll(this.getAllGamesAjaxString());
+    }
+
+    private String getAllGamesAjaxString(){
         try {
             JSONObject gamesList = new JSONObject();
             for (Map.Entry<String, GameRoom> game : games.entrySet()) {
                 if(games.get(game.getKey()).isOpened()) {
-                    gamesList.put(game.getKey(), games.get(game.getKey()).playersCount());
+                    gamesList.put(game.getKey(), games.get(game.getKey()).player1.getScore());
                 }
             }
-            gamesList = new JSONObject().put("type", "UPDATE_GAMES_LIST").put("games", gamesList);
-
-            this.notifyAll(gamesList.toString());
+            return new JSONObject().put("type", "UPDATE_GAMES_LIST").put("games", gamesList).toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        return "";
     }
 
     private void sendMessage(WebSocketSession session, String message) {
