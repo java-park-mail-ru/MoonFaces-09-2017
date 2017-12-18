@@ -70,7 +70,7 @@ public class SocketActionHandler {
                 this.createGame(user, webSocket);
             } else if (Objects.equals(actionType, ACTION_JOIN_GAME)) {
                 this.joinGame(user, webSocket, data);
-            }else if (Objects.equals(actionType, ACTION_SELECT_FIELD)) {
+            } else if (Objects.equals(actionType, ACTION_SELECT_FIELD)) {
                 this.selectField(user, webSocket, data);
             }
         } catch (JSONException e) {
@@ -88,7 +88,7 @@ public class SocketActionHandler {
                     data.getJSONObject("selection").getInt("xMax"),
                     data.getJSONObject("selection").getInt("yMax")
             );
-            if(endTurn){
+            if (endTurn) {
                 room.nextIteration();
                 JSONObject player1Response = new JSONObject();
                 JSONObject player2Response = new JSONObject();
@@ -158,15 +158,15 @@ public class SocketActionHandler {
         this.notifyGameList();
     }
 
-    private void notifyGameList(){
+    private void notifyGameList() {
         this.notifyAll(this.getAllGamesAjaxString());
     }
 
-    private String getAllGamesAjaxString(){
+    private String getAllGamesAjaxString() {
         try {
             JSONObject gamesList = new JSONObject();
             for (Map.Entry<String, GameRoom> game : games.entrySet()) {
-                if(games.get(game.getKey()).isOpened()) {
+                if (games.get(game.getKey()).isOpened()) {
                     gamesList.put(game.getKey(), games.get(game.getKey()).player1.getScore());
                 }
             }

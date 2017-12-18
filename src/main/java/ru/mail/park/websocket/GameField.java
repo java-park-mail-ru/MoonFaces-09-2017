@@ -11,7 +11,7 @@ public class GameField {
         this.generateRandomField();
     }
 
-    private void generateRandomField(){
+    private void generateRandomField() {
         this.array = new int[][]{
                 {1, 0, 0, 0, 0, 0, 1, 1},
                 {1, 0, 0, 1, 1, 0, 1, 1},
@@ -28,7 +28,7 @@ public class GameField {
         return this.array;
     }
 
-    private boolean endTurn(){
+    private boolean endTurn() {
         return this.player1Selection != null && this.player2Selection != null;
     }
 
@@ -51,11 +51,11 @@ public class GameField {
         this.player1Selection = null;
     }
 
-    public int[] getPlayer1Selection(){
+    public int[] getPlayer1Selection() {
         return this.player1Selection;
     }
 
-    public int[] getPlayer2Selection(){
+    public int[] getPlayer2Selection() {
         return this.player2Selection;
     }
 }
