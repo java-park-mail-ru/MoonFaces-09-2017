@@ -4,16 +4,31 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import ru.mail.park.models.User;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class GameRoom {
 
-    public User player1;
+    private User player1;
 
-    public User player2;
+    private User player2;
 
     private GameField gameField;
+
+    public User getPlayer1() {
+        return this.player1;
+    }
+
+    public User getPlayer2() {
+        return this.player2;
+    }
+
+    public void setPlayer1(User player1) {
+        this.player1 = player1;
+    }
+
+    public void setPlayer2(User player2) {
+        this.player2 = player2;
+    }
 
     public GameRoom(User owner) {
         this.player1 = owner;
@@ -21,17 +36,17 @@ public class GameRoom {
 
     public int playersCount() {
         int count = 0;
-        if (player1 != null) count++;
-        if (player2 != null) count++;
+        if (player1 != null) {
+            count++;
+        }
+        if (player2 != null) {
+            count++;
+        }
         return count;
     }
 
     public void startGame() {
         this.gameField = new GameField();
-    }
-
-    public int[][] getGameField() {
-        return this.gameField.getIntArray();
     }
 
     public boolean isOpened() {
@@ -40,29 +55,28 @@ public class GameRoom {
 
     public int[][] getGameFieldForUser(User user) {
         if (Objects.equals(user.getLogin(), this.player1.getLogin())) {
-            return this.getGameField();
+            return this.gameField.getIntArray();
         }
-        int tmp;
-        int[][] array = Arrays.copyOf(this.getGameField(), 8);
-        for (int i = 0; i < array.length; i++) {
-            array[i] = Arrays.copyOf(array[i], array.length);
-            for (int j = 0; j < array[i].length / 2; j++) {
-                tmp = array[i][j];
-                array[i][j] = array[i][array[i].length - j - 1];
-                array[i][array[i].length - j - 1] = tmp;
-            }
-        }
-        return array;
+        return this.gameField.getIntArrayInverted();
     }
 
-    public boolean setUserSelection(User user, int xMin, int yMin, int xMax, int yMax) {
+    public boolean setUserSelection(User user, int cordXMin, int cordYMin, int cordXMax, int cordYMax) {
         boolean endTurn;
         if (Objects.equals(user.getLogin(), this.player1.getLogin())) {
-            endTurn = this.gameField.setPlayer1Selection(xMin, yMin, xMax, yMax);
+            endTurn = this.gameField.setPlayer1Selection(cordXMin, cordYMin, cordXMax, cordYMax);
         } else {
-            endTurn = this.gameField.setPlayer2Selection(7 - xMin, yMin, 7 - xMax, yMax);
+            endTurn = this.gameField.setPlayer2Selection(cordXMin, cordYMin, cordXMax, cordYMax);
         }
         return endTurn;
+    }
+    
+    public int[] invertSelection(int[] selection) {
+        return new int[]{
+                this.gameField.getFieldWidth() - selection[2] - 1,
+                selection[1],
+                this.gameField.getFieldWidth() - selection[0] - 1,
+                selection[2 + 1],
+        };
     }
 
     public void nextIteration() {
@@ -80,21 +94,21 @@ public class GameRoom {
         this.gameField.clearUserSelections();
     }
 
-    public JSONObject getUserSelectionJsonString(User user) throws JSONException {
+    public JSONObject getUserSelectionJsonString(User currentUser, User targetUser) throws JSONException {
         JSONObject data = new JSONObject();
-        if (Objects.equals(user.getLogin(), this.player1.getLogin())) {
-            int[] selection = this.gameField.getPlayer2Selection();
-            data.put("xMin", selection[2]);// WHY CHANGE POSITIONS????
-            data.put("yMin", selection[1]);
-            data.put("xMax", selection[0]);
-            data.put("yMax", selection[3]);
+        int[] selection;
+        if (Objects.equals(targetUser.getLogin(), this.player1.getLogin())) {
+            selection = this.gameField.getPlayer1Selection();
         } else {
-            int[] selection = this.gameField.getPlayer1Selection();
-            data.put("xMin", 7 - selection[2]);// WHY CHANGE POSITIONS????
-            data.put("yMin", selection[1]);
-            data.put("xMax", 7 - selection[0]);
-            data.put("yMax", selection[3]);
+            selection = this.gameField.getPlayer2Selection();
         }
+        if (Objects.equals(currentUser.getLogin(), this.player2.getLogin())) {
+            selection = this.invertSelection(selection);
+        }
+        data.put("xMin", selection[0]);
+        data.put("yMin", selection[1]);
+        data.put("xMax", selection[2]);
+        data.put("yMax", selection[2 + 1]);
         return data;
     }
 }

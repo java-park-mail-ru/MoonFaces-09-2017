@@ -31,7 +31,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
             int id = (Integer) session.getAttributes().get("id");
             User user = userService.getUser(id);
             this.socketActionHandler.removeUser(user);
-        } catch (NullPointerException ignored) {
+        } catch (NullPointerException e) {
+            e.printStackTrace();
         }
         SESSIONS.remove(session);
         LOGGER.warn("User Disconnected");
