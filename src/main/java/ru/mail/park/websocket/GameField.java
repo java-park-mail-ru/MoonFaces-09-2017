@@ -148,8 +148,8 @@ public class GameField {
 
     public int getPlayer1Scores() {
         int count = 0;
-        for(int y = 0; y < FIELD_WIDTH; y++){
-            for (int x = 0; x < FIELD_WIDTH/2; x++){
+        for (int y = 0; y < FIELD_WIDTH; y++) {
+            for (int x = 0; x < FIELD_WIDTH / 2; x++) {
                 count += this.array[y][x];
             }
         }
@@ -158,8 +158,8 @@ public class GameField {
 
     public int getPlayer2Scores() {
         int count = 0;
-        for(int y = 0; y < FIELD_WIDTH; y++){
-            for (int x = FIELD_WIDTH/2; x < FIELD_WIDTH; x++){
+        for (int y = 0; y < FIELD_WIDTH; y++) {
+            for (int x = FIELD_WIDTH / 2; x < FIELD_WIDTH; x++) {
                 count += this.array[y][x];
             }
         }

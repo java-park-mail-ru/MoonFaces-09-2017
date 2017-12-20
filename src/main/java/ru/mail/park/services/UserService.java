@@ -24,4 +24,6 @@ public interface UserService {
     void updateScores(Integer id, Integer scores);
 
     List<User> getTopPlayers(int limit, int offset);
+
+    Integer countUsers();
 }

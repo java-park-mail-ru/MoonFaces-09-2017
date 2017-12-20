@@ -36,6 +36,10 @@ public class SocketActionHandler {
 
     private UserService userService;
 
+    private static final int WINNER_POINTS = 5;
+
+    private static final int LOOSER_POINTS = 1;
+
     public SocketActionHandler(Logger logger, Set<WebSocketSession> sessions, UserService userService) {
         this.logger = logger;
         this.webSocketSessions = sessions;
@@ -90,25 +94,25 @@ public class SocketActionHandler {
             );
             if (endTurn) {
                 room.nextIteration();
-                if(room.gameOver()){
+                if (room.gameOver()) {
                     int player1Scores = room.getPlayer1Score();
                     int player2Scores = room.getPlayer2Score();
                     boolean player1Winner = false;
                     boolean player2Winner = false;
                     User winner;
                     User looser;
-                    if(player1Scores > player2Scores){
+                    if (player1Scores > player2Scores) {
                         winner = room.getPlayer1();
                         looser = room.getPlayer2();
                         player1Winner = true;
-                    }else{
+                    } else {
                         winner = room.getPlayer2();
                         looser = room.getPlayer1();
                         player2Winner = true;
                     }
-                    winner.setScore(winner.getScore() + 5);
+                    winner.setScore(winner.getScore() + WINNER_POINTS);
                     this.userService.updateScores(winner.getId(), winner.getScore());
-                    looser.setScore(looser.getScore() + 1);
+                    looser.setScore(looser.getScore() + LOOSER_POINTS);
                     this.userService.updateScores(looser.getId(), looser.getScore());
 
                     JSONObject player1Response = new JSONObject();
@@ -130,7 +134,7 @@ public class SocketActionHandler {
                     this.games.remove(room.getPlayer1().toString());
                     this.userGameRelation.remove(room.getPlayer1().getLogin());
                     this.userGameRelation.remove(room.getPlayer2().getLogin());
-                }else {
+                } else {
                     JSONObject player1Response = new JSONObject();
                     JSONObject player2Response = new JSONObject();
 

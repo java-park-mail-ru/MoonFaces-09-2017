@@ -80,7 +80,7 @@ public class GameRoom {
         }
         return endTurn;
     }
-    
+
     public int[] invertSelection(int[] selection) {
         return new int[]{
                 this.gameField.getFieldWidth() - selection[2] - 1,
@@ -126,7 +126,7 @@ public class GameRoom {
     }
 
     public boolean gameOver() {
-        if(this.player1Score / 2 > this.player2Score || this.player2Score / 2 > this.player1Score){
+        if (this.player1Score / 2 > this.player2Score || this.player2Score / 2 > this.player1Score) {
             return true;
         }
         return false;
