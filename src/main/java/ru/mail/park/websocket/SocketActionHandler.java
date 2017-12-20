@@ -9,7 +9,6 @@ import org.springframework.web.socket.WebSocketSession;
 import ru.mail.park.models.User;
 import ru.mail.park.services.UserService;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -60,9 +59,29 @@ public class SocketActionHandler {
     }
 
     public void removeUser(User user) {
-        //if (userGameRelation.get(user.getLogin()) != null) {
-        //todo: delete game + this user looses
-        //}
+        if (userGameRelation.get(user.getLogin()) != null) {
+            GameRoom room = userGameRelation.get(user.getLogin());
+            if (room.playersCount() == 1) {
+                userGameRelation.remove(user.getLogin());
+                games.remove(room.getPlayer1().getLogin());
+                this.notifyGameList();
+            } else {
+                JSONObject errorMessage = new JSONObject();
+                try {
+                    errorMessage.put("type", "OPPONENT_LOST");
+                    User opponent = room.getPlayer1();
+                    if (Objects.equals(room.getPlayer1().getLogin(), user.getLogin())) {
+                        opponent = room.getPlayer2();
+                    }
+                    userGameRelation.remove(user.getLogin());
+                    userGameRelation.remove(opponent.getLogin());
+                    games.remove(room.getPlayer1().getLogin());
+                    this.sendMessage(userSession.get(opponent.getLogin()), errorMessage.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         this.userSession.remove(user.getLogin());
     }
 
@@ -226,7 +245,7 @@ public class SocketActionHandler {
     private void sendMessage(WebSocketSession session, String message) {
         try {
             session.sendMessage(new TextMessage(message));
-        } catch (IOException e) {
+        } catch (Exception e) {
             logger.error("Failed to send message");
         }
     }

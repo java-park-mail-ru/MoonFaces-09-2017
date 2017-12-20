@@ -27,6 +27,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
+        SESSIONS.remove(session);
         try {
             int id = (Integer) session.getAttributes().get("id");
             User user = userService.getUser(id);
@@ -34,7 +35,6 @@ public class GameSocketHandler extends TextWebSocketHandler {
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
-        SESSIONS.remove(session);
         LOGGER.warn("User Disconnected");
     }
 
