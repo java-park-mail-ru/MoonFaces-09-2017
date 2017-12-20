@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import ru.mail.park.models.User;
+import ru.mail.park.services.UserService;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,15 +34,18 @@ public class SocketActionHandler {
 
     private static SocketActionHandler instance = null;
 
-    public SocketActionHandler(Logger logger, Set<WebSocketSession> sessions) {
+    private UserService userService;
+
+    public SocketActionHandler(Logger logger, Set<WebSocketSession> sessions, UserService userService) {
         this.logger = logger;
         this.webSocketSessions = sessions;
+        this.userService = userService;
     }
 
 
-    public static SocketActionHandler getInstance(Logger logger, Set<WebSocketSession> sessions) {
+    public static SocketActionHandler getInstance(Logger logger, Set<WebSocketSession> sessions, UserService userService) {
         if (instance == null) {
-            instance = new SocketActionHandler(logger, sessions);
+            instance = new SocketActionHandler(logger, sessions, userService);
         }
         return instance;
     }
@@ -86,21 +90,63 @@ public class SocketActionHandler {
             );
             if (endTurn) {
                 room.nextIteration();
-                JSONObject player1Response = new JSONObject();
-                JSONObject player2Response = new JSONObject();
+                if(room.gameOver()){
+                    int player1Scores = room.getPlayer1Score();
+                    int player2Scores = room.getPlayer2Score();
+                    boolean player1Winner = false;
+                    boolean player2Winner = false;
+                    User winner;
+                    User looser;
+                    if(player1Scores > player2Scores){
+                        winner = room.getPlayer1();
+                        looser = room.getPlayer2();
+                        player1Winner = true;
+                    }else{
+                        winner = room.getPlayer2();
+                        looser = room.getPlayer1();
+                        player2Winner = true;
+                    }
+                    winner.setScore(winner.getScore() + 5);
+                    this.userService.updateScores(winner.getId(), winner.getScore());
+                    looser.setScore(looser.getScore() + 1);
+                    this.userService.updateScores(looser.getId(), looser.getScore());
 
-                player1Response.put("game_field", new JSONArray(room.getGameFieldForUser(user)));
-                player2Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getOpponent(user))));
+                    JSONObject player1Response = new JSONObject();
+                    player1Response.put("type", "GAME_OVER");
+                    player1Response.put("win", player1Winner);
+                    player1Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getPlayer1())));
+                    player1Response.put("score", room.getPlayer1().getScore());
 
-                player1Response.put("opponent_selection", room.getUserSelectionJsonString(user, room.getOpponent(user)));
-                player2Response.put("opponent_selection", room.getUserSelectionJsonString(room.getOpponent(user), user));
+                    JSONObject player2Response = new JSONObject();
+                    player2Response.put("type", "GAME_OVER");
+                    player2Response.put("win", player2Winner);
+                    player2Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getPlayer2())));
+                    player2Response.put("score", room.getPlayer2().getScore());
 
-                player1Response.put("type", "FIELD_UPDATE");
-                player2Response.put("type", "FIELD_UPDATE");
 
-                this.sendMessage(userSession.get(user.getLogin()), player1Response.toString());
-                this.sendMessage(userSession.get(room.getOpponent(user).getLogin()), player2Response.toString());
-                room.clearUserSelections();
+                    this.sendMessage(userSession.get(room.getPlayer1().getLogin()), player1Response.toString());
+                    this.sendMessage(userSession.get(room.getPlayer2().getLogin()), player2Response.toString());
+
+                    this.games.remove(room.getPlayer1().toString());
+                    this.userGameRelation.remove(room.getPlayer1().getLogin());
+                    this.userGameRelation.remove(room.getPlayer2().getLogin());
+                }else {
+                    JSONObject player1Response = new JSONObject();
+                    JSONObject player2Response = new JSONObject();
+
+                    player1Response.put("game_field", new JSONArray(room.getGameFieldForUser(user)));
+                    player2Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getOpponent(user))));
+
+                    player1Response.put("opponent_selection", room.getUserSelectionJsonString(user, room.getOpponent(user)));
+                    player2Response.put("opponent_selection", room.getUserSelectionJsonString(room.getOpponent(user), user));
+
+                    player1Response.put("type", "FIELD_UPDATE");
+                    player2Response.put("type", "FIELD_UPDATE");
+
+                    this.sendMessage(userSession.get(user.getLogin()), player1Response.toString());
+                    this.sendMessage(userSession.get(room.getOpponent(user).getLogin()), player2Response.toString());
+                    room.clearUserSelections();
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();

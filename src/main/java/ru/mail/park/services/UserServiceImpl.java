@@ -58,6 +58,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateScores(Integer id, Integer scores) {
+        template.update("UPDATE users SET score=? WHERE id=?", scores, id);
+    }
+
+    @Override
     public void changePassword(Integer id, String newPassword) {
         final String newPasswordHash = PasswordHandler.passwordEncoder().encode(newPassword);
         template.update("UPDATE users SET password=? WHERE id=?", newPasswordHash, id);

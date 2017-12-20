@@ -22,7 +22,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     public GameSocketHandler(UserService userService) {
         this.userService = userService;
-        this.socketActionHandler = SocketActionHandler.getInstance(LOGGER, SESSIONS);
+        this.socketActionHandler = SocketActionHandler.getInstance(LOGGER, SESSIONS, userService);
     }
 
     @Override

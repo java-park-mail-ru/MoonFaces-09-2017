@@ -145,4 +145,25 @@ public class GameField {
         this.player2Selection = null;
         this.player1Selection = null;
     }
+
+    public int getPlayer1Scores() {
+        int count = 0;
+        for(int y = 0; y < FIELD_WIDTH; y++){
+            for (int x = 0; x < FIELD_WIDTH/2; x++){
+                count += this.array[y][x];
+            }
+        }
+        return count;
+    }
+
+    public int getPlayer2Scores() {
+        int count = 0;
+        for(int y = 0; y < FIELD_WIDTH; y++){
+            for (int x = FIELD_WIDTH/2; x < FIELD_WIDTH; x++){
+                count += this.array[y][x];
+            }
+        }
+        return count;
+    }
+
 }

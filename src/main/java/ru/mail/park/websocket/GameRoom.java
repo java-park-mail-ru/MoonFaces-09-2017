@@ -12,6 +12,9 @@ public class GameRoom {
 
     private User player2;
 
+    private int player1Score;
+    private int player2Score;
+
     private GameField gameField;
 
     public User getPlayer1() {
@@ -20,6 +23,14 @@ public class GameRoom {
 
     public User getPlayer2() {
         return this.player2;
+    }
+
+    public int getPlayer1Score() {
+        return this.player1Score;
+    }
+
+    public int getPlayer2Score() {
+        return this.player2Score;
     }
 
     public void setPlayer1(User player1) {
@@ -81,6 +92,8 @@ public class GameRoom {
 
     public void nextIteration() {
         this.gameField.nextIteration();
+        this.player1Score = this.gameField.getPlayer1Scores();
+        this.player2Score = this.gameField.getPlayer2Scores();
     }
 
     public User getOpponent(User user) {
@@ -110,5 +123,12 @@ public class GameRoom {
         data.put("xMax", selection[2]);
         data.put("yMax", selection[2 + 1]);
         return data;
+    }
+
+    public boolean gameOver() {
+        if(this.player1Score / 2 > this.player2Score || this.player2Score / 2 > this.player1Score){
+            return true;
+        }
+        return false;
     }
 }
