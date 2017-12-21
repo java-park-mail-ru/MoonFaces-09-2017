@@ -1,23 +1,28 @@
 package ru.mail.park.websocket;
 
-import org.json.JSONArray;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import ru.mail.park.models.User;
 import ru.mail.park.services.UserService;
+import ru.mail.park.websocket.responses.GameOverResponse;
+import ru.mail.park.websocket.responses.JoinGameResponse;
+import ru.mail.park.websocket.responses.UserSelectionResponse;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
+@Service
 public class SocketActionHandler {
 
-    private Logger logger;
-
+    private Logger logger = LoggerFactory.getLogger(SocketActionHandler.class);
 
     private static final String ACTION_CREATE_GAME = "CREATE_GAME";
     private static final String ACTION_JOIN_GAME = "JOIN_GAME";
@@ -25,13 +30,9 @@ public class SocketActionHandler {
 
     private HashMap<String, GameRoom> games = new HashMap<>();
 
-    private Set<WebSocketSession> webSocketSessions;
-
     private HashMap<String, WebSocketSession> userSession = new HashMap<>();
 
     private HashMap<String, GameRoom> userGameRelation = new HashMap<>();
-
-    private static SocketActionHandler instance = null;
 
     private UserService userService;
 
@@ -39,18 +40,8 @@ public class SocketActionHandler {
 
     private static final int LOOSER_POINTS = 1;
 
-    public SocketActionHandler(Logger logger, Set<WebSocketSession> sessions, UserService userService) {
-        this.logger = logger;
-        this.webSocketSessions = sessions;
+    public SocketActionHandler(UserService userService) {
         this.userService = userService;
-    }
-
-
-    public static SocketActionHandler getInstance(Logger logger, Set<WebSocketSession> sessions, UserService userService) {
-        if (instance == null) {
-            instance = new SocketActionHandler(logger, sessions, userService);
-        }
-        return instance;
     }
 
     public void registerUser(User user, WebSocketSession session) {
@@ -104,6 +95,7 @@ public class SocketActionHandler {
     private void selectField(User user, WebSocketSession webSocket, JSONObject data) {
         GameRoom room = userGameRelation.get(user.getLogin());
         try {
+            ObjectMapper mapper = new ObjectMapper();
             boolean endTurn = room.setUserSelection(
                     user,
                     data.getJSONObject("selection").getInt("xMin"),
@@ -133,46 +125,47 @@ public class SocketActionHandler {
                     this.userService.updateScores(winner.getId(), winner.getScore());
                     looser.setScore(looser.getScore() + LOOSER_POINTS);
                     this.userService.updateScores(looser.getId(), looser.getScore());
+                    GameOverResponse player1Response = new GameOverResponse(
+                            "GAME_OVER",
+                            player1Winner,
+                            room.getGameFieldForUser(room.getPlayer1()),
+                            room.getPlayer1().getScore()
+                    );
 
-                    JSONObject player1Response = new JSONObject();
-                    player1Response.put("type", "GAME_OVER");
-                    player1Response.put("win", player1Winner);
-                    player1Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getPlayer1())));
-                    player1Response.put("score", room.getPlayer1().getScore());
+                    GameOverResponse player2Response = new GameOverResponse(
+                            "GAME_OVER",
+                            player2Winner,
+                            room.getGameFieldForUser(room.getPlayer2()),
+                            room.getPlayer2().getScore()
+                    );
 
-                    JSONObject player2Response = new JSONObject();
-                    player2Response.put("type", "GAME_OVER");
-                    player2Response.put("win", player2Winner);
-                    player2Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getPlayer2())));
-                    player2Response.put("score", room.getPlayer2().getScore());
-
-
-                    this.sendMessage(userSession.get(room.getPlayer1().getLogin()), player1Response.toString());
-                    this.sendMessage(userSession.get(room.getPlayer2().getLogin()), player2Response.toString());
+                    this.sendMessage(userSession.get(room.getPlayer1().getLogin()), mapper.writeValueAsString(player1Response));
+                    this.sendMessage(userSession.get(room.getPlayer2().getLogin()), mapper.writeValueAsString(player2Response));
 
                     this.games.remove(room.getPlayer1().toString());
                     this.userGameRelation.remove(room.getPlayer1().getLogin());
                     this.userGameRelation.remove(room.getPlayer2().getLogin());
                 } else {
-                    JSONObject player1Response = new JSONObject();
-                    JSONObject player2Response = new JSONObject();
+                    UserSelectionResponse player1Response = new UserSelectionResponse(
+                            "FIELD_UPDATE",
+                            room.getGameFieldForUser(user),
+                            room.getUserSelectionJsonString(user, room.getOpponent(user)).toString()
+                    );
 
-                    player1Response.put("game_field", new JSONArray(room.getGameFieldForUser(user)));
-                    player2Response.put("game_field", new JSONArray(room.getGameFieldForUser(room.getOpponent(user))));
+                    UserSelectionResponse player2Response = new UserSelectionResponse(
+                            "FIELD_UPDATE",
+                            room.getGameFieldForUser(room.getOpponent(user)),
+                            room.getUserSelectionJsonString(room.getOpponent(user), user).toString()
+                    );
 
-                    player1Response.put("opponent_selection", room.getUserSelectionJsonString(user, room.getOpponent(user)));
-                    player2Response.put("opponent_selection", room.getUserSelectionJsonString(room.getOpponent(user), user));
 
-                    player1Response.put("type", "FIELD_UPDATE");
-                    player2Response.put("type", "FIELD_UPDATE");
-
-                    this.sendMessage(userSession.get(user.getLogin()), player1Response.toString());
-                    this.sendMessage(userSession.get(room.getOpponent(user).getLogin()), player2Response.toString());
+                    this.sendMessage(userSession.get(user.getLogin()), mapper.writeValueAsString(player1Response));
+                    this.sendMessage(userSession.get(room.getOpponent(user).getLogin()), mapper.writeValueAsString(player2Response));
                     room.clearUserSelections();
                 }
             }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        } catch (JSONException | JsonProcessingException e) {
+            logger.error("Failed in field selection");
         }
     }
 
@@ -189,27 +182,30 @@ public class SocketActionHandler {
 
                 room.startGame();
 
-                JSONObject response = new JSONObject();
-                JSONArray ownerJsonGameField = new JSONArray(room.getGameFieldForUser(room.getPlayer1()));
+                ObjectMapper mapper = new ObjectMapper();
 
-                response.put("type", "CONNECTED");
-                response.put("game_field", ownerJsonGameField);
-                response.put("opponent", room.getPlayer1().getLogin());
+                JoinGameResponse ownerJoinResponse = new JoinGameResponse(
+                        "OPPONENT_FOUND",
+                        room.getGameFieldForUser(room.getPlayer1()),
+                        user.getLogin()
+                );
 
-                JSONObject ownerResponse = new JSONObject();
-                JSONArray opponentJsonGameField = new JSONArray(room.getGameFieldForUser(room.getPlayer2()));
-                ownerResponse.put("type", "OPPONENT_FOUND");
-                ownerResponse.put("game_field", opponentJsonGameField);
-                ownerResponse.put("opponent", user.getLogin());
+                JoinGameResponse opponentJoinResponse = new JoinGameResponse(
+                        "CONNECTED",
+                        room.getGameFieldForUser(room.getPlayer2()),
+                        room.getPlayer1().getLogin()
+                );
 
-                this.sendMessage(webSocket, response.toString());
-                this.sendMessageToUser(room.getPlayer1(), ownerResponse.toString());
+                this.sendMessage(webSocket, mapper.writeValueAsString(opponentJoinResponse));
+                this.sendMessageToUser(room.getPlayer1(), mapper.writeValueAsString(ownerJoinResponse));
                 this.notifyGameList();
             } else {
                 this.sendMessage(webSocket, "Game is not empty");
             }
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to join game");
         } catch (JSONException e) {
-            e.printStackTrace();
+            logger.error("Failed to parse request");
         }
     }
 
@@ -251,8 +247,8 @@ public class SocketActionHandler {
     }
 
     private void notifyAll(String message) {
-        for (WebSocketSession session : webSocketSessions) {
-            this.sendMessage(session, message);
+        for (Map.Entry<String, WebSocketSession> session: this.userSession.entrySet()) {
+            this.sendMessage(session.getValue(), message);
         }
     }
 }

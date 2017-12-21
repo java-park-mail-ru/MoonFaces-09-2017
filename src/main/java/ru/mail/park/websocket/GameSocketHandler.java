@@ -18,38 +18,40 @@ public class GameSocketHandler extends TextWebSocketHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameSocketHandler.class);
 
     private final UserService userService;
-    private SocketActionHandler socketActionHandler = null;
+    private SocketActionHandler socketActionHandler;
 
-    public GameSocketHandler(UserService userService) {
+    public GameSocketHandler(UserService userService, SocketActionHandler socketActionHandler) {
         this.userService = userService;
-        this.socketActionHandler = SocketActionHandler.getInstance(LOGGER, SESSIONS, userService);
+        this.socketActionHandler = socketActionHandler;
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         SESSIONS.remove(session);
-        try {
-            int id = (Integer) session.getAttributes().get("id");
-            User user = userService.getUser(id);
+
+        int id = (Integer) session.getAttributes().get("id");
+        User user = userService.getUser(id);
+        if (user != null) {
             this.socketActionHandler.removeUser(user);
-        } catch (NullPointerException e) {
-            e.printStackTrace();
         }
+
         LOGGER.warn("User Disconnected");
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession webSocketSession) throws Exception {
         final Integer id = (Integer) webSocketSession.getAttributes().get("id");
-        if (id == null || userService.getUser(id) == null) {
-            LOGGER.error("Only authenticated users allowed to play a game");
-            webSocketSession.close();
-            return;
+        if (id != null) {
+            User user = userService.getUser(id);
+            if (user != null) {
+                SESSIONS.add(webSocketSession);
+                this.socketActionHandler.registerUser(user, webSocketSession);
+                LOGGER.info(String.format("New user connection %s", user.getLogin()));
+                return;
+            }
         }
-        SESSIONS.add(webSocketSession);
-        User user = userService.getUser(id);
-        this.socketActionHandler.registerUser(user, webSocketSession);
-        LOGGER.info(String.format("New user connection %s", user.getLogin()));
+        LOGGER.error("Only authenticated users allowed to play a game");
+        webSocketSession.close();
     }
 
     @Override

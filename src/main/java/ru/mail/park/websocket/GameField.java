@@ -18,9 +18,9 @@ public class GameField {
 
     private void generateRandomField() {
         this.array = new int[FIELD_WIDTH][FIELD_WIDTH];
+        Random rand = new Random();
         for (int i = 0; i < FIELD_WIDTH; i++) {
             for (int j = 0; j < FIELD_WIDTH / 2; j++) {
-                Random rand = new Random();
                 int randomState = rand.nextInt(2);
                 this.array[i][j] = randomState;
                 this.array[i][FIELD_WIDTH - 1 - j] = randomState;

@@ -33,10 +33,6 @@ public class GameRoom {
         return this.player2Score;
     }
 
-    public void setPlayer1(User player1) {
-        this.player1 = player1;
-    }
-
     public void setPlayer2(User player2) {
         this.player2 = player2;
     }
@@ -46,10 +42,7 @@ public class GameRoom {
     }
 
     public int playersCount() {
-        int count = 0;
-        if (player1 != null) {
-            count++;
-        }
+        int count = 1;
         if (player2 != null) {
             count++;
         }
