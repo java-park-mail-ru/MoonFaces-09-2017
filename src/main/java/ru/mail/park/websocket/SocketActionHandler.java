@@ -11,9 +11,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import ru.mail.park.models.User;
 import ru.mail.park.services.UserService;
-import ru.mail.park.websocket.responses.GameOverResponse;
-import ru.mail.park.websocket.responses.JoinGameResponse;
-import ru.mail.park.websocket.responses.UserSelectionResponse;
+import ru.mail.park.websocket.responses.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,9 +55,7 @@ public class SocketActionHandler {
                 games.remove(room.getPlayer1().getLogin());
                 this.notifyGameList();
             } else {
-                JSONObject errorMessage = new JSONObject();
                 try {
-                    errorMessage.put("type", "OPPONENT_LOST");
                     User opponent = room.getPlayer1();
                     if (Objects.equals(room.getPlayer1().getLogin(), user.getLogin())) {
                         opponent = room.getPlayer2();
@@ -67,9 +63,14 @@ public class SocketActionHandler {
                     userGameRelation.remove(user.getLogin());
                     userGameRelation.remove(opponent.getLogin());
                     games.remove(room.getPlayer1().getLogin());
-                    this.sendMessage(userSession.get(opponent.getLogin()), errorMessage.toString());
-                } catch (JSONException e) {
-                    e.printStackTrace();
+
+                    OpponentLostResponse errorMessage = new OpponentLostResponse(
+                            "OPPONENT_LOST"
+                    );
+                    ObjectMapper mapper = new ObjectMapper();
+                    this.sendMessage(userSession.get(opponent.getLogin()), mapper.writeValueAsString(errorMessage));
+                } catch (JsonProcessingException e) {
+                    logger.error("failed to delete room");
                 }
             }
         }
@@ -225,15 +226,12 @@ public class SocketActionHandler {
 
     private String getAllGamesAjaxString() {
         try {
-            JSONObject gamesList = new JSONObject();
-            for (Map.Entry<String, GameRoom> game : games.entrySet()) {
-                if (games.get(game.getKey()).isOpened()) {
-                    gamesList.put(game.getKey(), games.get(game.getKey()).getPlayer1().getScore());
-                }
-            }
-            return new JSONObject().put("type", "UPDATE_GAMES_LIST").put("games", gamesList).toString();
-        } catch (JSONException e) {
-            e.printStackTrace();
+            ObjectMapper mapper = new ObjectMapper();
+            GamesListResponse gamesList = new GamesListResponse("UPDATE_GAMES_LIST", this.games);
+
+            return mapper.writeValueAsString(gamesList);
+        } catch (JsonProcessingException e) {
+            logger.error("Failed to put all games");
         }
         return "";
     }
@@ -247,7 +245,7 @@ public class SocketActionHandler {
     }
 
     private void notifyAll(String message) {
-        for (Map.Entry<String, WebSocketSession> session: this.userSession.entrySet()) {
+        for (Map.Entry<String, WebSocketSession> session : this.userSession.entrySet()) {
             this.sendMessage(session.getValue(), message);
         }
     }
