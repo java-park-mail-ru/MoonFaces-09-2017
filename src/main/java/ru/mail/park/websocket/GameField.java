@@ -28,6 +28,10 @@ public class GameField {
         }
     }
 
+    public void setGameField(int[][] newField) {
+        this.array = newField;
+    }
+
     public int[][] getIntArray() {
         return this.array;
     }
