@@ -58,6 +58,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void updateScores(Integer id, Integer scores) {
+        template.update("UPDATE users SET score=? WHERE id=?", scores, id);
+    }
+
+    @Override
     public void changePassword(Integer id, String newPassword) {
         final String newPasswordHash = PasswordHandler.passwordEncoder().encode(newPassword);
         template.update("UPDATE users SET password=? WHERE id=?", newPasswordHash, id);
@@ -81,6 +86,11 @@ public class UserServiceImpl implements UserService {
         );
     }
 
+    @Override
+    public Integer countUsers() {
+        return template.queryForObject("SELECT COUNT(*) FROM users", INTEGER_MAPPER);
+    }
+
     static final int USER_ID = 1;
     static final int LOGIN = 2;
     static final int EMAIL = 3;
@@ -92,5 +102,7 @@ public class UserServiceImpl implements UserService {
                                       res.getString(EMAIL),
                                       res.getString(PASSWORD),
                                       res.getInt(SCORE));
+    private static final RowMapper<Integer> INTEGER_MAPPER =
+            (res, rowNum) -> res.getInt(1);
 }
 

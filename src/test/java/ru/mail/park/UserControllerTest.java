@@ -43,7 +43,7 @@ public class UserControllerTest {
     @Test
     public void testScoreboard() throws Exception {
         //NOT_FOUND
-        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard?page=0"))
                 .andExpect(status().is4xxClientError());
         //SignUp
         mockMvc.perform(MockMvcRequestBuilders.post("/restapi/signup")
@@ -64,7 +64,7 @@ public class UserControllerTest {
         assertNotNull(user2);
 
         //OK_RESPONSE
-        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/restapi/scoreboard?page=0"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.users[0].login").value("login"))
                 .andExpect(jsonPath("$.users[1].login").value("login2"));
